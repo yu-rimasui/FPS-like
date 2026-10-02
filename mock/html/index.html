@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FPSごっこ — UI Design Mock</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+  <style type="text/tailwindcss">
+    @theme {
+      --color-paper: #faf7ee;
+      --color-ink: #353f35;
+      --color-muted: #737869;
+      --color-line: #d3d5c5;
+      --color-sage: #dce4c8;
+      --color-coral: #edaa92;
+      --font-pixel: 'DotGothic16', monospace;
+    }
+    @layer base {
+      body { @apply bg-[#eae9e1] text-ink; font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', sans-serif; }
+      button { border-radius: 0; }
+      button:focus-visible { outline: 3px solid #66794f; outline-offset: 5px; }
+    }
+    @layer components {
+      /* Screen → fixed SwiftUI frame; shared tokens are defined in @theme. */
+      .screen { @apply relative flex h-[844px] w-[390px] shrink-0 flex-col overflow-hidden border border-line bg-paper; }
+      .pixel { @apply font-pixel; }
+      .eyebrow { @apply font-mono text-[10px] tracking-[0.2em] text-muted; }
+      .status { @apply flex h-12 shrink-0 items-center justify-between px-7 font-mono text-xs font-bold; }
+      .home { @apply absolute bottom-3 left-1/2 h-1 w-[112px] -translate-x-1/2 bg-ink; }
+      /* Button: primary (sage), accent (coral), secondary (paper). */
+      .button { @apply flex min-h-12 items-center justify-center gap-3 border-2 border-ink bg-paper px-5 py-3 font-pixel text-sm; box-shadow: 0 3px 0 #353f35; }
+      .button-primary { @apply bg-sage; }
+      .button-accent { @apply bg-coral; }
+      /* Panel: content boundary. Card: one statistic. Dialog: sibling speech. */
+      .panel { @apply border border-line bg-paper p-5; }
+      .card { @apply border border-line bg-paper px-4 py-4; }
+      .dialog { @apply relative border border-ink bg-paper px-4 py-3 text-[13px] leading-6; }
+      .hud { @apply absolute inset-0; }
+      .hud-panel { @apply border border-ink bg-paper px-3 py-2; }
+      .reticle { position: relative; width: 32px; height: 32px; background: linear-gradient(currentColor,currentColor) center top / 2px 10px no-repeat, linear-gradient(currentColor,currentColor) center bottom / 2px 10px no-repeat, linear-gradient(currentColor,currentColor) left center / 10px 2px no-repeat, linear-gradient(currentColor,currentColor) right center / 10px 2px no-repeat; }
+      .pixel-plus { width: 28px; height: 28px; background: currentColor; clip-path: polygon(35% 0,65% 0,65% 35%,100% 35%,100% 65%,65% 65%,65% 100%,35% 100%,35% 65%,0 65%,0 35%,35% 35%); }
+      .pixel-spark { width: 24px; height: 24px; background: currentColor; clip-path: polygon(40% 0,60% 0,60% 20%,80% 20%,80% 40%,100% 40%,100% 60%,80% 60%,80% 80%,60% 80%,60% 100%,40% 100%,40% 80%,20% 80%,20% 60%,0 60%,0 40%,20% 40%,20% 20%,40% 20%); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Static comparison board. Buttons are visual samples, not game controls. -->
+  <main class="mx-auto w-[1298px] px-8 pb-10 pt-10">
+    <header class="mb-8 flex items-end justify-between border-b border-[#c9ccbd] pb-5">
+      <div class="flex items-center gap-4">
+        <span class="pixel-plus text-[#758567]" aria-hidden="true"></span>
+        <div><h1 class="pixel text-xl">FPSごっこ <span class="ml-3 font-mono text-xs tracking-widest text-muted">UI STUDY / 01</span></h1><p class="mt-2 text-xs text-muted">こわくない。むずかしくない。ちょっと、かっこいい。</p></div>
+      </div>
+      <p class="text-right font-mono text-[10px] leading-5 tracking-widest text-muted">DESIGN MOCK · 3 SCREENS<br>390 × 844 PT / STATIC</p>
+    </header>
+    <div class="flex gap-8">
+      <!-- TitleScreen -->
+      <section aria-labelledby="title-label">
+        <h2 id="title-label" class="eyebrow mb-3 flex justify-between"><span>01 / TITLE</span><span>はじまり</span></h2>
+        <article class="screen" aria-label="タイトル画面">
+          <div class="status" aria-hidden="true"><span>9:41</span><span>▂▄▆ &nbsp; ▰</span></div>
+          <div class="flex flex-1 flex-col px-8 pb-14">
+            <div class="mt-7 flex items-center gap-2"><span class="h-2 w-2 bg-[#82906a]"></span><span class="eyebrow">ALL CLEAR. ALL YOURS.</span></div>
+            <div class="relative mt-[94px] text-center">
+              <span class="pixel-spark absolute -top-8 right-8 text-coral" aria-hidden="true"></span>
+              <p class="pixel text-[80px] leading-none tracking-[0.05em]">FPS</p>
+              <h3 class="pixel mt-1 text-[48px] leading-[1.25] tracking-[0.12em]" aria-label="FPSごっこ">ごっこ<span class="text-coral">.</span></h3>
+              <div class="mx-auto mt-7 h-[3px] w-8 bg-coral"></div>
+              <p class="pixel mt-6 text-sm">「弟が全部倒しといたから。」</p>
+            </div>
+            <div class="mt-14 flex justify-center gap-2" aria-hidden="true"><span class="h-2 w-2 bg-[#9aa886]"></span><span class="h-2 w-2 bg-[#c3cfb3]"></span><span class="h-2 w-2 bg-[#e0e5d2]"></span></div>
+            <div class="mt-auto space-y-4" data-component="Button">
+              <button type="button" aria-disabled="true" class="button button-primary w-full text-lg"><span aria-hidden="true">▶</span> START</button>
+              <button type="button" aria-disabled="true" class="button w-full text-muted"><span class="pixel-plus !h-3 !w-3" aria-hidden="true"></span>設定</button>
+            </div>
+            <p class="mt-7 text-center font-mono text-[10px] tracking-[0.15em] text-muted">NO ENEMIES. NO WORRIES.</p>
+          </div>
+          <div class="home" aria-hidden="true"></div>
+        </article>
+      </section>
+      <!-- GameScreen: placeholder only; HUD values never change. -->
+      <section aria-labelledby="game-label">
+        <h2 id="game-label" class="eyebrow mb-3 flex justify-between"><span>02 / GAME HUD</span><span>FPSしてる感</span></h2>
+        <article class="screen !bg-[#e5e8d9]" aria-label="ゲーム画面 HUD モック">
+          <div class="status" aria-hidden="true"><span>9:41</span><span>▂▄▆ &nbsp; ▰</span></div>
+          <div class="relative flex-1">
+            <div class="absolute inset-x-6 bottom-[220px] top-[132px] flex flex-col items-center justify-center border border-dashed border-[#bbc3aa]" aria-label="ゲーム描画のダミーエリア">
+              <h3 class="pixel text-xl tracking-[0.2em] text-[#6d785d]">GAME VIEW</h3>
+              <p class="mt-3 font-mono text-[9px] tracking-[0.2em] text-[#788169]">A LITTLE FPS, A LOT OF PEACE.</p>
+              <div class="reticle mt-10 text-ink" role="img" aria-label="照準"></div>
+            </div>
+            <div class="hud" data-component="HUD">
+              <div class="absolute inset-x-6 top-4 flex gap-3">
+                <div class="hud-panel flex-1"><p class="eyebrow">SCORE</p><p class="pixel mt-1 text-2xl leading-7">002450</p></div>
+                <div class="hud-panel w-[112px]"><p class="eyebrow">TIME</p><p class="pixel mt-1 text-2xl leading-7">01:28</p></div>
+              </div>
+              <div class="absolute inset-x-6 top-[101px] flex items-center justify-between">
+                <span class="font-mono text-[10px] tracking-widest text-[#687357]">■ 0 ALIVE</span>
+                <button type="button" aria-disabled="true" class="button !min-h-11 !px-3 !py-2 !text-[11px] !shadow-none">武器変更 <span aria-hidden="true">⇄</span></button>
+              </div>
+              <div class="absolute bottom-[100px] left-6" data-component="Joystick">
+                <p class="eyebrow mb-3 text-center">MOVE</p>
+                <button type="button" aria-disabled="true" aria-label="移動ジョイスティック（ダミー）" class="relative flex h-[120px] w-[120px] items-center justify-center border border-[#a3af93] bg-[#dbe1cc]">
+                  <span class="absolute top-2 font-mono text-xs text-[#697959]" aria-hidden="true">▲</span><span class="absolute bottom-2 font-mono text-xs text-[#697959]" aria-hidden="true">▼</span><span class="absolute left-2 font-mono text-xs text-[#697959]" aria-hidden="true">◀</span><span class="absolute right-2 font-mono text-xs text-[#697959]" aria-hidden="true">▶</span>
+                  <span class="flex h-12 w-12 items-center justify-center border-2 border-[#687957] bg-paper shadow-[0_3px_0_#a3af93]"><span class="h-2 w-2 bg-[#839471]"></span></span>
+                </button>
+              </div>
+              <div class="absolute bottom-[100px] right-6 flex w-[104px] flex-col gap-4">
+                <button type="button" aria-disabled="true" class="button !min-h-11 !gap-2 !px-2 !text-[11px]"><span aria-hidden="true">↻</span>リロード</button>
+                <button type="button" aria-disabled="true" class="button button-accent h-[104px] flex-col !gap-2 !p-3"><span class="reticle !h-7 !w-7" aria-hidden="true"></span><span class="text-xs">射撃</span></button>
+              </div>
+              <div class="absolute inset-x-6 bottom-12 flex items-center justify-between border-t border-[#bdc6ad] pt-4"><p class="pixel text-[11px] text-[#637153]">弟が片付けた訓練場</p><p class="font-mono text-xs">18 <span class="text-muted">/ ∞</span></p></div>
+            </div>
+          </div>
+          <div class="home" aria-hidden="true"></div>
+        </article>
+      </section>
+      <!-- ResultScreen -->
+      <section aria-labelledby="result-label">
+        <h2 id="result-label" class="eyebrow mb-3 flex justify-between"><span>03 / RESULT</span><span>やった気がする！</span></h2>
+        <article class="screen" aria-label="リザルト画面">
+          <div class="status" aria-hidden="true"><span>9:41</span><span>▂▄▆ &nbsp; ▰</span></div>
+          <div class="flex flex-1 flex-col px-7 pb-14">
+            <div class="mt-7 flex items-center justify-between"><span class="eyebrow">GOOD JOB, PLAYER 1.</span><span class="pixel-spark !h-5 !w-5 text-[#839471]" aria-hidden="true"></span></div>
+            <h3 class="pixel mt-7 text-[34px] leading-[1.3]">Mission<br>Complete<span class="text-coral">!</span></h3>
+            <div class="mt-7 space-y-3" data-component="Dialog">
+              <div class="flex items-start gap-3"><span class="flex h-8 w-8 shrink-0 items-center justify-center border border-ink bg-sage pixel text-xs">弟</span><p class="dialog">どうだった？</p></div>
+              <div class="flex items-start justify-end gap-3"><p class="dialog !bg-[#f6e4d7] pixel">FPSやった！</p><span class="flex h-8 w-8 shrink-0 items-center justify-center border border-ink bg-coral pixel text-xs">姉</span></div>
+              <div class="flex items-start gap-3"><span class="flex h-8 w-8 shrink-0 items-center justify-center border border-ink bg-sage pixel text-xs">弟</span><p class="dialog !text-xs">敵全部倒したの俺だけどね。</p></div>
+            </div>
+            <div class="panel mt-8 !bg-[#eef0e3]" data-component="Panel"><div class="flex items-center justify-between"><span class="pixel text-xs">スコア</span><span class="eyebrow">SCORE</span></div><p class="pixel mt-2 text-[48px] leading-none tracking-[0.06em]">008450</p></div>
+            <div class="mt-3 grid grid-cols-2 gap-3" data-component="Card">
+              <div class="card"><p class="pixel text-xs">命中率</p><p class="pixel mt-2 text-[27px] leading-none">92<span class="ml-1 text-sm">%</span></p></div>
+              <div class="card"><p class="pixel text-xs">コンボ</p><p class="pixel mt-2 text-[27px] leading-none">08<span class="ml-2 font-mono text-[10px] text-muted">MAX</span></p></div>
+            </div>
+            <button type="button" aria-disabled="true" class="button button-primary mt-auto w-full"><span aria-hidden="true">▶</span> Play Again</button>
+          </div>
+          <div class="home" aria-hidden="true"></div>
+        </article>
+      </section>
+    </div>
+    <footer class="mt-6 flex items-center justify-between text-[10px] text-muted"><p class="font-mono tracking-widest">FPS GOKKO / SOFT RETRO INTERFACE</p><p>固定サイズ・静的モック ／ ボタンと数値はデザイン見本</p></footer>
+  </main>
+</body>
+</html>

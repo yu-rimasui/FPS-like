@@ -18,11 +18,32 @@ FPSの「怖い部分」をすべて取り除き、
 
 ## 現在の状態
 
-現在はUIデザインモックの段階です。タイトル・ゲーム画面（HUD）・リザルトの3画面をHTMLとTailwind CSSで作成しています。
+SwiftUI＋RealityKitによるiPhone向けMVPを実装しています。タイトル → 60秒のゲーム → リザルト → Play Againの3画面で構成します。
 
-- 390 × 844の固定サイズで3画面を比較できます。
-- ボタン・数値は表示用です。ゲームロジック、画面遷移、データ保存はありません。
-- iOSアプリ本体は未実装です。以下のゲーム仕様・技術スタックは今後のMVP開発方針です。
+- HTMLモックはUI仕様書として保持し、色・四角い部品・コピーをSwiftUIへ移植しています。
+- ゲームは移動・視点操作・射撃・即時リロードに対応。武器は1種類で、設定と武器変更は表示のみです。
+- 18発、命中+100点、命中率、2秒以内の連続命中コンボを集計します。倒れたダミーは1つの物理Bodyとして反応します。
+- 外部ライブラリ・外部素材・永続化・アプリ内ネットワーク通信はありません。フォントはApple標準の等幅フォントへフォールバックしています。
+
+## iOSアプリの起動・検証
+
+`app/FPSPretend.xcodeproj`をXcodeで開き、`FPSPretend` schemeとiPhone Simulatorを選んでRunします。対応はiOS 17以降・iPhone・縦画面です。実機で実行する場合はSigningのTeamと必要に応じてBundle Identifierを設定してください。
+
+```sh
+xcodebuild -project app/FPSPretend.xcodeproj -scheme FPSPretend \
+  -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath /tmp/TryFPS-build CODE_SIGNING_ALLOWED=NO build
+
+# 利用可能なiPhone Simulator名に置き換えて実行
+xcodebuild -project app/FPSPretend.xcodeproj -scheme FPSPretend \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -derivedDataPath /tmp/TryFPS-build -parallel-testing-enabled NO \
+  CODE_SIGNING_ALLOWED=NO test
+```
+
+テストは状態の境界条件、描画中のRay命中・物理Impulse・前後左右の移動、および実時間60秒の画面遷移と再プレイを確認します。UIテストには3画面のスクリーンショットが添付されます。
+
+Simulatorでの検証と実機性能は区別しています。実機での60FPS・起動速度は未計測です。
 
 ## モックの確認方法
 
@@ -76,7 +97,7 @@ python3 -m http.server 8791 --bind 127.0.0.1
 - 視点操作
 - 射撃
 - リロード
-- 武器変更
+- 武器変更UI（MVPは1種類・切り替えなし）
 
 敵AIは存在しません。
 
@@ -90,11 +111,11 @@ python3 -m http.server 8791 --bind 127.0.0.1
 
 このプロジェクトの目的は2つあります。
 
-## 1. SpriteKitを学ぶ
+## 1. RealityKitを学ぶ
 
 ゲーム制作経験がないため、
 
-小さく完成させながらSpriteKitを学ぶ教材として開発します。
+小さく完成させながらRealityKitを学ぶ教材として開発します。
 
 ## 2. 自分が遊びたいゲームを作る
 
@@ -133,10 +154,10 @@ python3 -m http.server 8791 --bind 127.0.0.1
 
 ---
 
-# 技術スタック（iOS MVPの予定）
+# 技術スタック（iOS MVP）
 
 - SwiftUI
-- SpriteKit
+- RealityKit
 - Swift
 - Xcode
 
@@ -153,7 +174,7 @@ TryFPS/
 ├── docs/                 # 業務設計書など
 ├── design/               # デザイン資料用（現在は空）
 ├── mock/html/index.html  # 静的UIモック
-└── app/                  # iOSアプリ用（未実装）
+└── app/                  # Xcodeプロジェクト・SwiftUI/RealityKit実装・テスト
 ```
 
 シンプルさを維持するため、

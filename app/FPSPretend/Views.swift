@@ -17,7 +17,7 @@ struct TitleView: View {
                 (Text("ごっこ") + Text(".").foregroundColor(AppColors.coral))
                     .font(AppFonts.pixel(48)).tracking(5.7)
                 Rectangle().fill(AppColors.coral).frame(width: 32, height: 3).padding(.top, 28)
-                Text("「弟が全部倒しといたから。」").font(AppFonts.pixel(14)).padding(.top, 24)
+                Text("戦わなくていいFPS。").font(AppFonts.pixel(14)).padding(.top, 24)
             }
             .frame(maxWidth: .infinity)
             .overlay(alignment: .topTrailing) {
@@ -59,11 +59,6 @@ struct ResultView: View {
             (Text("Mission\nComplete") + Text("!").foregroundColor(AppColors.coral))
                 .font(AppFonts.pixel(34)).lineSpacing(3).padding(.top, 28)
                 .accessibilityAddTraits(.isHeader)
-            VStack(spacing: 12) {
-                GameDialog(speaker: "弟", message: "どうだった？")
-                GameDialog(speaker: "姉", message: "FPSやった！", sister: true)
-                GameDialog(speaker: "弟", message: "敵全部倒したの俺だけどね。")
-            }.padding(.top, 28)
             GamePanel(fill: Color(hex: 0xeef0e3)) {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack { Text("スコア").font(AppFonts.pixel(12)); Spacer(); Eyebrow(text: "SCORE") }
@@ -82,29 +77,6 @@ struct ResultView: View {
         .padding(.horizontal, 28).padding(.bottom, 22)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .foregroundStyle(AppColors.ink).background(AppColors.paper)
-    }
-}
-
-struct GameDialog: View {
-    let speaker: String
-    let message: String
-    var sister = false
-
-    private var avatar: some View {
-        Text(speaker).font(AppFonts.pixel(12)).frame(width: 32, height: 32)
-            .background(sister ? AppColors.coral : AppColors.sage)
-            .overlay(Rectangle().strokeBorder(AppColors.ink))
-    }
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            if sister { Spacer(minLength: 0) } else { avatar }
-            Text(message).font(AppFonts.pixel(message.count > 12 ? 12 : 13))
-                .padding(.horizontal, 16).padding(.vertical, 13)
-                .background(sister ? Color(hex: 0xf6e4d7) : AppColors.paper)
-                .overlay(Rectangle().strokeBorder(AppColors.ink))
-            if sister { avatar } else { Spacer(minLength: 0) }
-        }.accessibilityElement(children: .ignore).accessibilityLabel("\(speaker)「\(message)」")
     }
 }
 
@@ -180,7 +152,7 @@ struct GameView: View {
                     }.frame(width: 104)
                 }
                 HStack {
-                    Text("弟が片付けた訓練場").font(AppFonts.pixel(11))
+                    Text("自由に遊べる訓練場").font(AppFonts.pixel(11))
                     Spacer()
                     Text("\(state.ammo) / ∞").font(.system(size: 12, design: .monospaced))
                         .accessibilityLabel("残弾 \(state.ammo)").accessibilityIdentifier("ammoLabel")

@@ -5,9 +5,11 @@ final class FlowTests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         XCTAssertTrue(app.buttons["startButton"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.staticTexts["戦わなくていいFPS。"].exists)
         capture("Title", app: app)
         app.buttons["startButton"].tap()
         XCTAssertTrue(app.buttons["fireButton"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.staticTexts["自由に遊べる訓練場"].exists)
         capture("Game", app: app)
         app.buttons["fireButton"].tap()
         XCTAssertTrue(app.staticTexts["ammoLabel"].label.contains("17"))
@@ -30,6 +32,9 @@ final class FlowTests: XCTestCase {
     }
 
     @MainActor private func capture(_ name: String, app: XCUIApplication) {
+        let familyText = NSPredicate(format: "label MATCHES %@", ".*[姉弟兄妹].*")
+        XCTAssertFalse(app.descendants(matching: .any).matching(familyText).firstMatch.exists,
+                       "\(name) must not contain family roles or dialogue")
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = name
         attachment.lifetime = .keepAlways

@@ -1,54 +1,540 @@
 // !$*UTF8*$!
-{ archiveVersion = 1; classes = {}; objectVersion = 56; objects = {
-B1E9761B59F8A2C297B303AC = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FPSPretendApp.swift; sourceTree = "<group>"; };
-03631E905ACDE91DE0DEEBCD = { isa = PBXBuildFile; fileRef = B1E9761B59F8A2C297B303AC; };
-3D1AC95BE6C8304C8C57612C = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
-7409352C818E837A4AEF10CF = { isa = PBXBuildFile; fileRef = 3D1AC95BE6C8304C8C57612C; };
-1D8B9BD1DDAEF693A874A56C = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameWorld.swift; sourceTree = "<group>"; };
-96E978645636E213C95F5F33 = { isa = PBXBuildFile; fileRef = 1D8B9BD1DDAEF693A874A56C; };
-47DDA8AC1EB098D09CD12227 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
-E1595F87D87516919832D9C3 = { isa = PBXBuildFile; fileRef = 47DDA8AC1EB098D09CD12227; };
-622B8646411E2ECE58C0C784 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
-F86CBFF99044259BFB0190FF = { isa = PBXBuildFile; fileRef = 622B8646411E2ECE58C0C784; };
-EF2DD7F51229EB74FF29C51D = { isa = PBXGroup; children = (B1E9761B59F8A2C297B303AC, 3D1AC95BE6C8304C8C57612C, 1D8B9BD1DDAEF693A874A56C, 47DDA8AC1EB098D09CD12227, 622B8646411E2ECE58C0C784,); path = FPSPretend; sourceTree = "<group>"; };
-C60EA0B6D5DDD2F137F9EC9F = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (03631E905ACDE91DE0DEEBCD, 7409352C818E837A4AEF10CF, 96E978645636E213C95F5F33, E1595F87D87516919832D9C3, F86CBFF99044259BFB0190FF,); runOnlyForDeploymentPostprocessing = 0; };
-0E5D37C2314A1942E1E8F26A = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-31F11080CCD5252EDCFE2EDB = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-9E7113F1CF53EEACDFCF538F = { isa = PBXFileReference; explicitFileType = wrapper.application; path = FPSPretend.app; sourceTree = BUILT_PRODUCTS_DIR; };
-DCF7FD6144E352A3FE472598 = { isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO; SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO; PRODUCT_NAME = "$(TARGET_NAME)"; PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretend; INFOPLIST_KEY_CFBundleDisplayName = "FPSごっこ"; INFOPLIST_KEY_UILaunchScreen_Generation = YES; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES; INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait; }; name = Debug; };
-E9142FB85D5204A02316CF0F = { isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO; SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO; PRODUCT_NAME = "$(TARGET_NAME)"; PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretend; INFOPLIST_KEY_CFBundleDisplayName = "FPSごっこ"; INFOPLIST_KEY_UILaunchScreen_Generation = YES; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES; INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait; }; name = Release; };
-4F0F7A550F246619E2027E90 = { isa = XCConfigurationList; buildConfigurations = (DCF7FD6144E352A3FE472598, E9142FB85D5204A02316CF0F,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-7A91F9994F8FA3A5BF7AC5FC = { isa = PBXNativeTarget; buildConfigurationList = 4F0F7A550F246619E2027E90; buildPhases = (C60EA0B6D5DDD2F137F9EC9F, 0E5D37C2314A1942E1E8F26A, 31F11080CCD5252EDCFE2EDB,); buildRules = (); dependencies = (); name = FPSPretend; productName = FPSPretend; productReference = 9E7113F1CF53EEACDFCF538F; productType = "com.apple.product-type.application"; };
-14136CCE04CF0540F8D535BC = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameTests.swift; sourceTree = "<group>"; };
-C7545B02F17CCC020B0D22E7 = { isa = PBXBuildFile; fileRef = 14136CCE04CF0540F8D535BC; };
-335AFFEAA5794011034DFF61 = { isa = PBXGroup; children = (14136CCE04CF0540F8D535BC,); path = FPSPretendTests; sourceTree = "<group>"; };
-023B29B0FD899573DA784717 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (C7545B02F17CCC020B0D22E7,); runOnlyForDeploymentPostprocessing = 0; };
-7B6E2DDE3A130EE7877CDA54 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-74E122F592DF7D2B680D81BA = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-EAEA7A65CBB6D26973ABD210 = { isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = FPSPretendTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-02F8B1101EE9CD44AEF107BF = { isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO; SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO; PRODUCT_NAME = "$(TARGET_NAME)"; PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretendTests; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FPSPretend.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FPSPretend"; BUNDLE_LOADER = "$(TEST_HOST)"; }; name = Debug; };
-5094AF97EA952F38895FF12B = { isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO; SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO; PRODUCT_NAME = "$(TARGET_NAME)"; PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretendTests; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FPSPretend.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FPSPretend"; BUNDLE_LOADER = "$(TEST_HOST)"; }; name = Release; };
-1068F22E181BAF41C97C22BE = { isa = XCConfigurationList; buildConfigurations = (02F8B1101EE9CD44AEF107BF, 5094AF97EA952F38895FF12B,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-EEF71B145A2BCD5E206797D6 = { isa = PBXContainerItemProxy; containerPortal = 98F54143AB4E86B28C3AFEE0; proxyType = 1; remoteGlobalIDString = 7A91F9994F8FA3A5BF7AC5FC; remoteInfo = FPSPretend; };
-3D440C9419AB6B6AFBC4A993 = { isa = PBXTargetDependency; target = 7A91F9994F8FA3A5BF7AC5FC; targetProxy = EEF71B145A2BCD5E206797D6; };
-699979445E91F01E83776644 = { isa = PBXNativeTarget; buildConfigurationList = 1068F22E181BAF41C97C22BE; buildPhases = (023B29B0FD899573DA784717, 7B6E2DDE3A130EE7877CDA54, 74E122F592DF7D2B680D81BA,); buildRules = (); dependencies = (3D440C9419AB6B6AFBC4A993,); name = FPSPretendTests; productName = FPSPretendTests; productReference = EAEA7A65CBB6D26973ABD210; productType = "com.apple.product-type.bundle.unit-test"; };
-C3E2FC819C86EE084FBF1A1C = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowTests.swift; sourceTree = "<group>"; };
-E6E751068D2BB9FFFF83DCEC = { isa = PBXBuildFile; fileRef = C3E2FC819C86EE084FBF1A1C; };
-3E830443899C4D8A53255B09 = { isa = PBXGroup; children = (C3E2FC819C86EE084FBF1A1C,); path = FPSPretendUITests; sourceTree = "<group>"; };
-B14C995E2E6DCA201CBBF8E3 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (E6E751068D2BB9FFFF83DCEC,); runOnlyForDeploymentPostprocessing = 0; };
-D0DE26F10EAA86A19BC6A3C0 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-C10F61958245EE618A618038 = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-5AFBD648EB1E3D1DDE4D08D5 = { isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = FPSPretendUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-518687B073DE17D3E9FAC4FE = { isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO; SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO; PRODUCT_NAME = "$(TARGET_NAME)"; PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretendUITests; TEST_TARGET_NAME = FPSPretend; }; name = Debug; };
-9B34216E19B6BB0942DF301F = { isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO; SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO; PRODUCT_NAME = "$(TARGET_NAME)"; PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretendUITests; TEST_TARGET_NAME = FPSPretend; }; name = Release; };
-DA4D73412BF69D59AF5C86AF = { isa = XCConfigurationList; buildConfigurations = (518687B073DE17D3E9FAC4FE, 9B34216E19B6BB0942DF301F,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-8BA0726B91A8A0693C3F4061 = { isa = PBXContainerItemProxy; containerPortal = 98F54143AB4E86B28C3AFEE0; proxyType = 1; remoteGlobalIDString = 7A91F9994F8FA3A5BF7AC5FC; remoteInfo = FPSPretend; };
-B1A63D7260DFA9FCB7404B72 = { isa = PBXTargetDependency; target = 7A91F9994F8FA3A5BF7AC5FC; targetProxy = 8BA0726B91A8A0693C3F4061; };
-DEE8EBCFDED7132B96C79962 = { isa = PBXNativeTarget; buildConfigurationList = DA4D73412BF69D59AF5C86AF; buildPhases = (B14C995E2E6DCA201CBBF8E3, D0DE26F10EAA86A19BC6A3C0, C10F61958245EE618A618038,); buildRules = (); dependencies = (B1A63D7260DFA9FCB7404B72,); name = FPSPretendUITests; productName = FPSPretendUITests; productReference = 5AFBD648EB1E3D1DDE4D08D5; productType = "com.apple.product-type.bundle.ui-testing"; };
-FBDC4F23F93125BBEEAE800C = { isa = PBXGroup; children = (9E7113F1CF53EEACDFCF538F, EAEA7A65CBB6D26973ABD210, 5AFBD648EB1E3D1DDE4D08D5,); name = Products; sourceTree = "<group>"; };
-B28B7AF69320201D1CF206EB = { isa = PBXGroup; children = (EF2DD7F51229EB74FF29C51D, 335AFFEAA5794011034DFF61, 3E830443899C4D8A53255B09, FBDC4F23F93125BBEEAE800C,); sourceTree = "<group>"; };
-89E1FD6268CC0F221A2BE178 = { isa = XCBuildConfiguration; buildSettings = { SDKROOT = iphoneos; CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; ENABLE_TESTABILITY = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; DEBUG_INFORMATION_FORMAT = dwarf; }; name = Debug; };
-E6DE6C99132752C914FEF632 = { isa = XCBuildConfiguration; buildSettings = { SDKROOT = iphoneos; CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_COMPILATION_MODE = wholemodule; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; }; name = Release; };
-862894B703A6DEDF96A9DD6C = { isa = XCConfigurationList; buildConfigurations = (89E1FD6268CC0F221A2BE178, E6DE6C99132752C914FEF632,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-98F54143AB4E86B28C3AFEE0 = { isa = PBXProject; attributes = { LastUpgradeCheck = 2600; }; buildConfigurationList = 862894B703A6DEDF96A9DD6C; compatibilityVersion = "Xcode 14.0"; developmentRegion = ja; knownRegions = (ja, en, Base); mainGroup = B28B7AF69320201D1CF206EB; productRefGroup = FBDC4F23F93125BBEEAE800C; projectDirPath = ""; projectRoot = ""; targets = (7A91F9994F8FA3A5BF7AC5FC, 699979445E91F01E83776644, DEE8EBCFDED7132B96C79962,); };
-}; rootObject = 98F54143AB4E86B28C3AFEE0; }
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		03631E905ACDE91DE0DEEBCD /* FPSPretendApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E9761B59F8A2C297B303AC /* FPSPretendApp.swift */; };
+		4F6A8C0E2B1D4356A7C9E0F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B8D0F2A4C1E4356B7D9F0A2 /* Assets.xcassets */; };
+		7409352C818E837A4AEF10CF /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D1AC95BE6C8304C8C57612C /* GameState.swift */; };
+		96E978645636E213C95F5F33 /* GameWorld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8B9BD1DDAEF693A874A56C /* GameWorld.swift */; };
+		C7545B02F17CCC020B0D22E7 /* GameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14136CCE04CF0540F8D535BC /* GameTests.swift */; };
+		E1595F87D87516919832D9C3 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DDA8AC1EB098D09CD12227 /* Views.swift */; };
+		E6E751068D2BB9FFFF83DCEC /* FlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E2FC819C86EE084FBF1A1C /* FlowTests.swift */; };
+		F86CBFF99044259BFB0190FF /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 622B8646411E2ECE58C0C784 /* Theme.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8BA0726B91A8A0693C3F4061 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 98F54143AB4E86B28C3AFEE0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7A91F9994F8FA3A5BF7AC5FC;
+			remoteInfo = FPSPretend;
+		};
+		EEF71B145A2BCD5E206797D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 98F54143AB4E86B28C3AFEE0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7A91F9994F8FA3A5BF7AC5FC;
+			remoteInfo = FPSPretend;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		14136CCE04CF0540F8D535BC /* GameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameTests.swift; sourceTree = "<group>"; };
+		1D8B9BD1DDAEF693A874A56C /* GameWorld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameWorld.swift; sourceTree = "<group>"; };
+		3D1AC95BE6C8304C8C57612C /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
+		47DDA8AC1EB098D09CD12227 /* Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
+		5AFBD648EB1E3D1DDE4D08D5 /* FPSPretendUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = FPSPretendUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		622B8646411E2ECE58C0C784 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		6B8D0F2A4C1E4356B7D9F0A2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9E7113F1CF53EEACDFCF538F /* FPSPretend.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = FPSPretend.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1E9761B59F8A2C297B303AC /* FPSPretendApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FPSPretendApp.swift; sourceTree = "<group>"; };
+		C3E2FC819C86EE084FBF1A1C /* FlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowTests.swift; sourceTree = "<group>"; };
+		EAEA7A65CBB6D26973ABD210 /* FPSPretendTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = FPSPretendTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0E5D37C2314A1942E1E8F26A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7B6E2DDE3A130EE7877CDA54 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D0DE26F10EAA86A19BC6A3C0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		335AFFEAA5794011034DFF61 /* FPSPretendTests */ = {
+			isa = PBXGroup;
+			children = (
+				14136CCE04CF0540F8D535BC /* GameTests.swift */,
+			);
+			path = FPSPretendTests;
+			sourceTree = "<group>";
+		};
+		3E830443899C4D8A53255B09 /* FPSPretendUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C3E2FC819C86EE084FBF1A1C /* FlowTests.swift */,
+			);
+			path = FPSPretendUITests;
+			sourceTree = "<group>";
+		};
+		B28B7AF69320201D1CF206EB = {
+			isa = PBXGroup;
+			children = (
+				EF2DD7F51229EB74FF29C51D /* FPSPretend */,
+				335AFFEAA5794011034DFF61 /* FPSPretendTests */,
+				3E830443899C4D8A53255B09 /* FPSPretendUITests */,
+				FBDC4F23F93125BBEEAE800C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		EF2DD7F51229EB74FF29C51D /* FPSPretend */ = {
+			isa = PBXGroup;
+			children = (
+				6B8D0F2A4C1E4356B7D9F0A2 /* Assets.xcassets */,
+				B1E9761B59F8A2C297B303AC /* FPSPretendApp.swift */,
+				3D1AC95BE6C8304C8C57612C /* GameState.swift */,
+				1D8B9BD1DDAEF693A874A56C /* GameWorld.swift */,
+				47DDA8AC1EB098D09CD12227 /* Views.swift */,
+				622B8646411E2ECE58C0C784 /* Theme.swift */,
+			);
+			path = FPSPretend;
+			sourceTree = "<group>";
+		};
+		FBDC4F23F93125BBEEAE800C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E7113F1CF53EEACDFCF538F /* FPSPretend.app */,
+				EAEA7A65CBB6D26973ABD210 /* FPSPretendTests.xctest */,
+				5AFBD648EB1E3D1DDE4D08D5 /* FPSPretendUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		699979445E91F01E83776644 /* FPSPretendTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1068F22E181BAF41C97C22BE /* Build configuration list for PBXNativeTarget "FPSPretendTests" */;
+			buildPhases = (
+				023B29B0FD899573DA784717 /* Sources */,
+				7B6E2DDE3A130EE7877CDA54 /* Frameworks */,
+				74E122F592DF7D2B680D81BA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3D440C9419AB6B6AFBC4A993 /* PBXTargetDependency */,
+			);
+			name = FPSPretendTests;
+			productName = FPSPretendTests;
+			productReference = EAEA7A65CBB6D26973ABD210 /* FPSPretendTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		7A91F9994F8FA3A5BF7AC5FC /* FPSPretend */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F0F7A550F246619E2027E90 /* Build configuration list for PBXNativeTarget "FPSPretend" */;
+			buildPhases = (
+				C60EA0B6D5DDD2F137F9EC9F /* Sources */,
+				0E5D37C2314A1942E1E8F26A /* Frameworks */,
+				31F11080CCD5252EDCFE2EDB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FPSPretend;
+			productName = FPSPretend;
+			productReference = 9E7113F1CF53EEACDFCF538F /* FPSPretend.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DEE8EBCFDED7132B96C79962 /* FPSPretendUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA4D73412BF69D59AF5C86AF /* Build configuration list for PBXNativeTarget "FPSPretendUITests" */;
+			buildPhases = (
+				B14C995E2E6DCA201CBBF8E3 /* Sources */,
+				D0DE26F10EAA86A19BC6A3C0 /* Frameworks */,
+				C10F61958245EE618A618038 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B1A63D7260DFA9FCB7404B72 /* PBXTargetDependency */,
+			);
+			name = FPSPretendUITests;
+			productName = FPSPretendUITests;
+			productReference = 5AFBD648EB1E3D1DDE4D08D5 /* FPSPretendUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		98F54143AB4E86B28C3AFEE0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2650;
+				TargetAttributes = {
+					DEE8EBCFDED7132B96C79962 = {
+						TestTargetID = 7A91F9994F8FA3A5BF7AC5FC;
+					};
+				};
+			};
+			buildConfigurationList = 862894B703A6DEDF96A9DD6C /* Build configuration list for PBXProject "FPSPretend" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = ja;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				ja,
+				en,
+				Base,
+			);
+			mainGroup = B28B7AF69320201D1CF206EB;
+			productRefGroup = FBDC4F23F93125BBEEAE800C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7A91F9994F8FA3A5BF7AC5FC /* FPSPretend */,
+				699979445E91F01E83776644 /* FPSPretendTests */,
+				DEE8EBCFDED7132B96C79962 /* FPSPretendUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		31F11080CCD5252EDCFE2EDB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F6A8C0E2B1D4356A7C9E0F1 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		74E122F592DF7D2B680D81BA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C10F61958245EE618A618038 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		023B29B0FD899573DA784717 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C7545B02F17CCC020B0D22E7 /* GameTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B14C995E2E6DCA201CBBF8E3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E6E751068D2BB9FFFF83DCEC /* FlowTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C60EA0B6D5DDD2F137F9EC9F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				03631E905ACDE91DE0DEEBCD /* FPSPretendApp.swift in Sources */,
+				7409352C818E837A4AEF10CF /* GameState.swift in Sources */,
+				96E978645636E213C95F5F33 /* GameWorld.swift in Sources */,
+				E1595F87D87516919832D9C3 /* Views.swift in Sources */,
+				F86CBFF99044259BFB0190FF /* Theme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3D440C9419AB6B6AFBC4A993 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7A91F9994F8FA3A5BF7AC5FC /* FPSPretend */;
+			targetProxy = EEF71B145A2BCD5E206797D6 /* PBXContainerItemProxy */;
+		};
+		B1A63D7260DFA9FCB7404B72 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7A91F9994F8FA3A5BF7AC5FC /* FPSPretend */;
+			targetProxy = 8BA0726B91A8A0693C3F4061 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		02F8B1101EE9CD44AEF107BF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretendTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FPSPretend.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FPSPretend";
+			};
+			name = Debug;
+		};
+		5094AF97EA952F38895FF12B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretendTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FPSPretend.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FPSPretend";
+			};
+			name = Release;
+		};
+		518687B073DE17D3E9FAC4FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = JGZHR8C93J;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretendUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = FPSPretend;
+			};
+			name = Debug;
+		};
+		89E1FD6268CC0F221A2BE178 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = JGZHR8C93J;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Debug;
+		};
+		9B34216E19B6BB0942DF301F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretendUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = FPSPretend;
+			};
+			name = Release;
+		};
+		DCF7FD6144E352A3FE472598 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphoneos*]" = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "FPSもどき";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarHidden = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretend;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		E6DE6C99132752C914FEF632 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = JGZHR8C93J;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Release;
+		};
+		E9142FB85D5204A02316CF0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphoneos*]" = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "FPSもどき";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarHidden = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretend;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1068F22E181BAF41C97C22BE /* Build configuration list for PBXNativeTarget "FPSPretendTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				02F8B1101EE9CD44AEF107BF /* Debug */,
+				5094AF97EA952F38895FF12B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4F0F7A550F246619E2027E90 /* Build configuration list for PBXNativeTarget "FPSPretend" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DCF7FD6144E352A3FE472598 /* Debug */,
+				E9142FB85D5204A02316CF0F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		862894B703A6DEDF96A9DD6C /* Build configuration list for PBXProject "FPSPretend" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				89E1FD6268CC0F221A2BE178 /* Debug */,
+				E6DE6C99132752C914FEF632 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DA4D73412BF69D59AF5C86AF /* Build configuration list for PBXNativeTarget "FPSPretendUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				518687B073DE17D3E9FAC4FE /* Debug */,
+				9B34216E19B6BB0942DF301F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 98F54143AB4E86B28C3AFEE0 /* Project object */;
+}

@@ -3,8 +3,10 @@ import Observation
 
 @MainActor @Observable
 final class GameState {
-    enum Phase { case title, game, result }
+    enum Phase { case title, game, resolution, result }
+    let progress: ProgressStore
     private(set) var phase = Phase.title
+    private(set) var stageIndex = 0
     private(set) var score = 0
     private(set) var remainingTime = 60
     private(set) var shotCount = 0
@@ -13,13 +15,54 @@ final class GameState {
     private(set) var maxCombo = 0
     private(set) var ammo = 18
     private(set) var hitFeedback = false
+    private(set) var hitTargets: Set<Int> = []
+    private(set) var targetHits: [Int] = []
+    private(set) var variant = 0
+    private(set) var message = ""
     private var deadline = 0.0
     private var lastHit: Double?
+    private var pausedAt: Double?
+    private var resolutionUntil = 0.0
+    var stage: Stage { Stage.all[stageIndex] }
+    var resolvedCount: Int { targetHits.filter { $0 >= stage.kind.hitsToResolve }.count }
+    var isCleared: Bool { !targetHits.isEmpty && resolvedCount == targetHits.count }
+    var isFinalStage: Bool { stageIndex == Stage.all.count - 1 }
+    var ending: String { stage.kind.details.endings[variant] }
     var accuracy: Int { shotCount == 0 ? 0 : Int(Double(hitCount) / Double(shotCount) * 100) }
 
-    func start(now: Double = ProcessInfo.processInfo.systemUptime) {
+    init(progress: ProgressStore? = nil) { self.progress = progress ?? ProgressStore() }
+
+    @discardableResult func start(stageIndex: Int? = nil, now: Double = ProcessInfo.processInfo.systemUptime) -> Bool {
+        let selected = stageIndex ?? progress.currentStage
+        guard (0...progress.unlockedStage).contains(selected) else { return false }
+        self.stageIndex = selected
+        beginStage(now: now)
+        return true
+    }
+
+    func advance(now: Double = ProcessInfo.processInfo.systemUptime) {
+        guard phase == .result, isCleared, !isFinalStage else { return }
+        stageIndex += 1
+        beginStage(now: now)
+    }
+
+    func retry(now: Double = ProcessInfo.processInfo.systemUptime) {
+        guard phase == .result else { return }
+        beginStage(now: now)
+    }
+
+    func continueFromResult(now: Double = ProcessInfo.processInfo.systemUptime) {
+        guard phase == .result else { return }
+        if isCleared {
+            if isFinalStage { start(stageIndex: 0, now: now) } else { advance(now: now) }
+        } else { retry(now: now) }
+    }
+
+    func returnToTitle() { phase = .title; hitFeedback = false }
+
+    private func beginStage(now: Double) {
         score = 0
-        remainingTime = 60
+        remainingTime = stage.timeLimit
         shotCount = 0
         hitCount = 0
         currentCombo = 0
@@ -27,15 +70,25 @@ final class GameState {
         ammo = 18
         hitFeedback = false
         lastHit = nil
-        deadline = now + 60
+        hitTargets = []
+        targetHits = Array(repeating: 0, count: stage.targets.count)
+        variant = progress.beginVisit(stageIndex)
+        message = stage.kind.details.instruction
+        pausedAt = nil
+        deadline = now + Double(stage.timeLimit)
         phase = .game
     }
 
     func tick(now: Double = ProcessInfo.processInfo.systemUptime) {
+        guard pausedAt == nil else { return }
+        if phase == .resolution {
+            if now >= resolutionUntil { phase = .result }
+            return
+        }
         guard phase == .game else { return }
         remainingTime = max(0, Int(ceil(deadline - now)))
         if let lastHit {
-            hitFeedback = now - lastHit < 0.35
+            hitFeedback = now - lastHit < 2
             if now - lastHit >= 2 { currentCombo = 0 }
         }
         if remainingTime == 0 {
@@ -44,29 +97,74 @@ final class GameState {
         }
     }
 
+    func pause(now: Double = ProcessInfo.processInfo.systemUptime) {
+        guard (phase == .game || phase == .resolution), pausedAt == nil else { return }
+        tick(now: now)
+        if phase == .game || phase == .resolution { pausedAt = now }
+    }
+
+    func resume(now: Double = ProcessInfo.processInfo.systemUptime) {
+        guard let pausedAt else { return }
+        let duration = max(0, now - pausedAt)
+        deadline += duration
+        resolutionUntil += duration
+        if let lastHit { self.lastHit = lastHit + duration }
+        self.pausedAt = nil
+        tick(now: now)
+    }
+
     // Validate the deadline on actions too, including the first frame after returning to the app.
     func fire(now: Double = ProcessInfo.processInfo.systemUptime) -> Bool {
         tick(now: now)
-        guard phase == .game, ammo > 0 else { return false }
+        guard phase == .game, pausedAt == nil, ammo > 0 else { return false }
         ammo -= 1
         shotCount += 1
         return true
     }
 
-    func registerHit(now: Double = ProcessInfo.processInfo.systemUptime) {
-        guard phase == .game else { return }
+    @discardableResult func registerHit(targetID: Int = 0, now: Double = ProcessInfo.processInfo.systemUptime) -> Bool {
+        tick(now: now)
+        guard phase == .game, pausedAt == nil, targetHits.indices.contains(targetID),
+              targetHits[targetID] < stage.kind.hitsToResolve, hitCount < shotCount else { return false }
         if let lastHit, now - lastHit >= 2 { currentCombo = 0 }
         score += 100
         hitCount += 1
+        hitTargets.insert(targetID)
+        targetHits[targetID] += 1
         currentCombo += 1
         maxCombo = max(maxCombo, currentCombo)
         lastHit = now
         hitFeedback = true
+        if targetHits[targetID] == stage.kind.hitsToResolve {
+            message = ending
+            progress.discover(stage: stageIndex, ending: variant)
+        } else {
+            let hits = targetHits[targetID]
+            switch stage.kind {
+            case .duvet: message = "あと…\(5 - hits)分…"
+            case .loading: message = "進捗：\(hits * 100 / stage.kind.hitsToResolve)％"
+            case .cable: message = "ほどけてきました。たぶん。"
+            case .mail: message = "承知を積み重ねています"
+            case .calendar: message = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日"][hits]
+            case .battery: message = "充電 \(min(100, 1 + hits * 25))％"
+            case .password: message = ["8文字以上！", "記号も必要！", "大文字も必要！", "昨日と違うもの！"][hits]
+            case .task: message = "タスクが\(hits + 1)個に増えました…"
+            case .dragon: message = "本日中…ですよね？"
+            case .notification: break
+            }
+        }
+        if isCleared {
+            progress.markCleared(stageIndex)
+            hitFeedback = false
+            resolutionUntil = now + 2.2
+            phase = .resolution
+        }
+        return true
     }
 
     func reload(now: Double = ProcessInfo.processInfo.systemUptime) {
         tick(now: now)
-        guard phase == .game else { return }
+        guard phase == .game, pausedAt == nil else { return }
         ammo = 18
     }
 }

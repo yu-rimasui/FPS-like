@@ -2,22 +2,27 @@ import SwiftUI
 import RealityKit
 
 struct TitleView: View {
+    let progress: ProgressStore
     let onStart: () -> Void
+    let onSettings: () -> Void
+    let onStages: () -> Void
+    let onCollection: () -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
+        ScrollView { VStack(spacing: 0) {
             HStack(spacing: 8) {
                 Rectangle().fill(Color(hex: 0x82906a)).frame(width: 8, height: 8)
                 Eyebrow(text: "ALL CLEAR. ALL YOURS.")
                 Spacer()
             }.padding(.top, 28)
-            Spacer(minLength: 40)
+            Color.clear.frame(height: 36)
             VStack(spacing: 0) {
-                Text("FPS").font(AppFonts.pixel(80)).tracking(4)
+                Text("FPS").font(AppFonts.pixel(64)).tracking(4)
                 (Text("ごっこ") + Text(".").foregroundColor(AppColors.coral))
-                    .font(AppFonts.pixel(48)).tracking(5.7)
+                    .font(AppFonts.pixel(40)).tracking(5.7)
                 Rectangle().fill(AppColors.coral).frame(width: 32, height: 3).padding(.top, 28)
                 Text("戦わなくていいFPS。").font(AppFonts.pixel(14)).padding(.top, 24)
+                Text("日常のイラッを、アホに解決。").font(AppFonts.pixel(13)).padding(.top, 12)
             }
             .frame(maxWidth: .infinity)
             .overlay(alignment: .topTrailing) {
@@ -27,19 +32,25 @@ struct TitleView: View {
                 ForEach([0x9aa886, 0xc3cfb3, 0xe0e5d2], id: \.self) { hex in
                     Rectangle().fill(Color(hex: UInt32(hex))).frame(width: 8, height: 8)
                 }
-            }.padding(.top, 56).accessibilityHidden(true)
-            Spacer(minLength: 40)
+            }.padding(.top, 24).accessibilityHidden(true)
+            Color.clear.frame(height: 32)
             VStack(spacing: 16) {
-                Button(action: onStart) { Text("▶  START").font(AppFonts.pixel(18)) }
+                Text("全10ステージ・35〜60秒 / クリア \(progress.cleared.count)/10")
+                    .font(AppFonts.pixel(12)).foregroundStyle(AppColors.muted).accessibilityIdentifier("savedProgress")
+                Button(action: onStart) { Text("▶  START · STAGE \(progress.currentStage + 1)").font(AppFonts.pixel(16)) }
                     .buttonStyle(PixelButtonStyle(fill: AppColors.sage)).accessibilityIdentifier("startButton")
-                Button {} label: { Text("✚  設定").foregroundStyle(AppColors.muted) }
-                    .buttonStyle(PixelButtonStyle()).disabled(true)
-                    .accessibilityHint("MVPでは利用できません")
+                Button("ステージ選択", action: onStages).buttonStyle(PixelButtonStyle())
+                    .accessibilityIdentifier("stageSelectButton")
+                Button("イラッと解決図鑑", action: onCollection).buttonStyle(PixelButtonStyle())
+                    .accessibilityIdentifier("collectionButton")
+                Button("✚  設定", action: onSettings)
+                    .buttonStyle(PixelButtonStyle()).accessibilityIdentifier("settingsButton")
             }
             Text("NO ENEMIES. NO WORRIES.").font(.system(size: 10, design: .monospaced))
                 .tracking(1.5).foregroundStyle(AppColors.muted).padding(.top, 28)
         }
         .padding(.horizontal, 32).padding(.bottom, 22)
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .foregroundStyle(AppColors.ink).background(AppColors.paper)
     }
@@ -47,32 +58,48 @@ struct TitleView: View {
 
 struct ResultView: View {
     let state: GameState
-    let onReplay: () -> Void
+    let onContinue: () -> Void
+    let onTitle: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Eyebrow(text: "GOOD JOB, PLAYER 1.")
+                Eyebrow(text: "STAGE \(state.stageIndex + 1) / \(Stage.all.count)")
+                    .accessibilityIdentifier("resultStage")
                 Spacer()
                 PixelSpark().fill(Color(hex: 0x839471)).frame(width: 20, height: 20)
             }.padding(.top, 28)
-            (Text("Mission\nComplete") + Text("!").foregroundColor(AppColors.coral))
+            Text(state.isCleared ? (state.isFinalStage ? "全10ステージ\nクリア！" : "Stage\nClear!") : "ひと休み")
                 .font(AppFonts.pixel(34)).lineSpacing(3).padding(.top, 28)
                 .accessibilityAddTraits(.isHeader)
+                .accessibilityIdentifier("resultStatus")
+            Text(state.stage.goal).font(AppFonts.pixel(12)).padding(.top, 16)
+            Text("解決 \(state.resolvedCount)/\(state.stage.requiredTargets) ・ 命中 \(state.hitCount)")
+                .font(AppFonts.pixel(12)).padding(.top, 8).accessibilityIdentifier("resultProgress")
+            if state.isCleared {
+                Text("「\(state.ending)」").font(AppFonts.pixel(18)).multilineTextAlignment(.leading)
+                    .padding(16).frame(maxWidth: .infinity, alignment: .leading)
+                    .background(AppColors.sage).padding(.top, 16).accessibilityIdentifier("resultEnding")
+                Text(state.isFinalStage ? "日常のイラッ、全10種解決。おつかれさまでした！" : "オチを図鑑に記録しました。")
+                    .font(AppFonts.pixel(12)).padding(.top, 8)
+            }
             GamePanel(fill: Color(hex: 0xeef0e3)) {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack { Text("スコア").font(AppFonts.pixel(12)); Spacer(); Eyebrow(text: "SCORE") }
-                    Text(String(format: "%06d", state.score)).font(AppFonts.pixel(48)).tracking(2.8)
+                    Text(String(format: "%06d", state.score)).font(AppFonts.pixel(36)).tracking(2.8)
                         .accessibilityIdentifier("resultScore")
                 }
-            }.padding(.top, 32)
+            }.padding(.top, 20)
             HStack(spacing: 12) {
                 StatCard(title: "命中率", value: "\(state.accuracy)", suffix: "%", identifier: "resultAccuracy")
                 StatCard(title: "コンボ", value: String(format: "%02d", state.maxCombo), suffix: "MAX", identifier: "resultCombo")
             }.padding(.top, 12)
             Spacer(minLength: 24)
-            Button("▶  Play Again", action: onReplay)
-                .buttonStyle(PixelButtonStyle(fill: AppColors.sage)).accessibilityIdentifier("replayButton")
+            Button(state.isCleared ? (state.isFinalStage ? "▶  ステージ1からもう一度" : "▶  次のステージへ") : "▶  もう一度", action: onContinue)
+                .buttonStyle(PixelButtonStyle(fill: AppColors.sage))
+                .accessibilityIdentifier(state.isCleared && !state.isFinalStage ? "nextStageButton" : "replayButton")
+            Button("タイトルへ", action: onTitle).buttonStyle(PixelButtonStyle())
+                .padding(.top, 16).accessibilityIdentifier("titleButton")
         }
         .padding(.horizontal, 28).padding(.bottom, 22)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -101,6 +128,8 @@ struct StatCard: View {
 struct GameView: View {
     let state: GameState
     let world: GameWorld
+    let onSettings: () -> Void
+    let onTitle: () -> Void
     @State private var lastAim = CGSize.zero
     @GestureState private var moving = false
     @State private var stick = CGSize.zero
@@ -118,22 +147,41 @@ struct GameView: View {
                 .accessibilityLabel("視点操作").accessibilityIdentifier("aimArea")
                 .accessibilityHint("ドラッグして上下左右を見ます")
             Reticle().allowsHitTesting(false)
-            if state.hitFeedback {
-                Text("HIT! +100").font(AppFonts.pixel(18)).padding(8).background(AppColors.paper)
-                    .offset(y: -48).allowsHitTesting(false)
+            if state.hitFeedback || state.phase == .resolution {
+                Text(state.message).font(AppFonts.pixel(15)).multilineTextAlignment(.center)
+                    .padding(12).frame(maxWidth: 290).background(AppColors.paper)
+                    .offset(y: -48).allowsHitTesting(false).accessibilityIdentifier("reactionMessage")
             }
             VStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text("STAGE \(state.stageIndex + 1)/\(Stage.all.count)  \(state.stage.name)")
+                            .font(AppFonts.pixel(12)).accessibilityIdentifier("stageLabel")
+                        Spacer()
+                        Button(action: onSettings) { Image(systemName: "gearshape").frame(width: 44) }
+                            .buttonStyle(PixelButtonStyle(shadow: false)).frame(width: 48)
+                            .accessibilityLabel("設定").accessibilityIdentifier("settingsButton")
+                    }
+                    Text(state.stage.goal).font(AppFonts.pixel(11)).accessibilityIdentifier("stageGoal")
+                    Text(state.stage.kind.details.instruction).font(AppFonts.pixel(11))
+                        .accessibilityIdentifier("stageInstruction")
+                    Text("解決 \(state.resolvedCount)/\(state.stage.requiredTargets) ・ 命中 \(state.hitCount)")
+                        .font(AppFonts.pixel(11)).accessibilityIdentifier("stageProgress")
+                }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
+                    .background(AppColors.paper).overlay(Rectangle().strokeBorder(AppColors.ink))
+                    .padding(.bottom, 12)
                 HStack(spacing: 12) {
                     hudStat("SCORE", value: String(format: "%06d", state.score), identifier: "scoreLabel")
                     hudStat("TIME", value: String(format: "%02d:%02d", state.remainingTime / 60, state.remainingTime % 60), identifier: "timerLabel")
                         .frame(width: 112)
                 }
                 HStack {
-                    Text("■ 0 ALIVE").font(.system(size: 10, design: .monospaced)).tracking(1)
+                    Text("NO DAMAGE").font(.system(size: 10, design: .monospaced)).tracking(1)
                         .padding(6).background(AppColors.paper.opacity(0.9))
                     Spacer()
-                    Button {} label: { Text("武器変更 ⇄").font(AppFonts.pixel(11)) }
-                        .buttonStyle(PixelButtonStyle(shadow: false)).frame(width: 104).disabled(true)
+                    Button("タイトルへ", action: onTitle).font(AppFonts.pixel(11))
+                        .buttonStyle(PixelButtonStyle(shadow: false)).frame(width: 104)
+                        .accessibilityIdentifier("leaveStageButton")
                 }.padding(.top, 18)
                 Spacer()
                 HStack(alignment: .bottom) {
@@ -149,10 +197,10 @@ struct GameView: View {
                             }.frame(height: 104).frame(maxWidth: .infinity)
                         }.buttonStyle(PixelButtonStyle(fill: AppColors.coral))
                             .accessibilityIdentifier("fireButton")
-                    }.frame(width: 104)
+                    }.frame(width: 104).disabled(state.phase != .game).opacity(state.phase == .game ? 1 : 0.45)
                 }
                 HStack {
-                    Text("自由に遊べる訓練場").font(AppFonts.pixel(11))
+                    Text("イラッを気ままに解決").font(AppFonts.pixel(11))
                     Spacer()
                     Text("\(state.ammo) / ∞").font(.system(size: 12, design: .monospaced))
                         .accessibilityLabel("残弾 \(state.ammo)").accessibilityIdentifier("ammoLabel")
@@ -203,6 +251,65 @@ struct GameView: View {
                 .accessibilityHint("上下左右にドラッグして移動します")
                 .accessibilityIdentifier("moveControl")
         }
+    }
+}
+
+struct SettingsView: View {
+    let sound: ShotSound
+    @AppStorage("shotSoundEnabled") private var enabled = true
+    @AppStorage("shotSoundVolume") private var volume = 0.65
+    @AppStorage("shotSoundStyle") private var style = ShotStyle.pop.rawValue
+    @AppStorage("hapticsEnabled") private var hapticsEnabled = true
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                HStack {
+                    Text("設定").font(AppFonts.pixel(24)).accessibilityAddTraits(.isHeader)
+                    Spacer()
+                    Button("閉じる") { dismiss() }.buttonStyle(PixelButtonStyle())
+                        .frame(width: 88).accessibilityIdentifier("closeSettingsButton")
+                }
+                GamePanel {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Toggle("SE", isOn: $enabled).font(AppFonts.pixel(16))
+                            .tint(Color(hex: 0x758567)).accessibilityIdentifier("shotSoundToggle")
+                        Text("発砲・命中・解決の音をまとめて調整します。")
+                            .font(AppFonts.pixel(13)).foregroundStyle(AppColors.muted)
+                        Divider()
+                        HStack {
+                            Text("音量")
+                            Spacer()
+                            Text("\(Int(volume * 100))%")
+                                .accessibilityIdentifier("soundVolumeLabel")
+                        }.font(AppFonts.pixel(14))
+                        Slider(value: $volume, in: 0...1).frame(minHeight: 44)
+                            .tint(Color(hex: 0x758567)).disabled(!enabled)
+                            .accessibilityLabel("SEの音量").accessibilityIdentifier("soundVolumeSlider")
+                        Text("発砲音のタイプ").font(AppFonts.pixel(14))
+                        Picker("発砲音のタイプ", selection: $style) {
+                            ForEach(ShotStyle.allCases) { Text($0.label).tag($0.rawValue) }
+                        }.pickerStyle(.segmented).accessibilityIdentifier("soundStylePicker")
+                            .disabled(!enabled)
+                        Button("音を試す", action: sound.play)
+                            .buttonStyle(PixelButtonStyle(fill: AppColors.sage)).disabled(!enabled || volume == 0)
+                            .opacity(enabled && volume > 0 ? 1 : 0.45)
+                            .accessibilityIdentifier("previewSoundButton")
+                    }
+                }
+                GamePanel {
+                    Toggle("振動", isOn: $hapticsEnabled).font(AppFonts.pixel(16))
+                        .tint(Color(hex: 0x758567)).accessibilityIdentifier("hapticsToggle")
+                }
+                Text("設定は自動で保存されます。端末の消音モードでは音は鳴りません。")
+                    .font(AppFonts.pixel(13)).foregroundStyle(AppColors.muted)
+            }.padding(24)
+        }.background(AppColors.paper).foregroundStyle(AppColors.ink)
+            .onChange(of: enabled) { _, _ in sound.stop() }
+            .onChange(of: volume) { _, _ in sound.stop() }
+            .onChange(of: style) { _, _ in sound.stop() }
+            .onDisappear { sound.stop() }
     }
 }
 

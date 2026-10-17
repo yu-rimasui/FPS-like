@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A1B2C3D4E5F6071829304021 /* ProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304031; };
+		A1B2C3D4E5F6071829304022 /* EnemyVisual.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304032; };
+		A1B2C3D4E5F6071829304023 /* LibraryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304033; };
+		A1B2C3D4E5F6071829304024 /* Audio in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304034; };
+		A1B2C3D4E5F6071829304001 /* Stage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304011 /* Stage.swift */; };
+		A1B2C3D4E5F6071829304002 /* ShotSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304012 /* ShotSound.swift */; };
+		A1B2C3D4E5F6071829304003 /* shot.wav in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304013 /* shot.wav */; };
 		03631E905ACDE91DE0DEEBCD /* FPSPretendApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E9761B59F8A2C297B303AC /* FPSPretendApp.swift */; };
 		4F6A8C0E2B1D4356A7C9E0F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B8D0F2A4C1E4356B7D9F0A2 /* Assets.xcassets */; };
 		7409352C818E837A4AEF10CF /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D1AC95BE6C8304C8C57612C /* GameState.swift */; };
@@ -35,6 +42,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A1B2C3D4E5F6071829304031 /* ProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressStore.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304032 /* EnemyVisual.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnemyVisual.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304033 /* LibraryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViews.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304034 /* Audio */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Audio; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304011 /* Stage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stage.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304012 /* ShotSound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShotSound.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304013 /* shot.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = shot.wav; sourceTree = "<group>"; };
 		14136CCE04CF0540F8D535BC /* GameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameTests.swift; sourceTree = "<group>"; };
 		1D8B9BD1DDAEF693A874A56C /* GameWorld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameWorld.swift; sourceTree = "<group>"; };
 		3D1AC95BE6C8304C8C57612C /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
@@ -102,6 +116,13 @@
 		EF2DD7F51229EB74FF29C51D /* FPSPretend */ = {
 			isa = PBXGroup;
 			children = (
+				A1B2C3D4E5F6071829304031 /* ProgressStore.swift */,
+				A1B2C3D4E5F6071829304032 /* EnemyVisual.swift */,
+				A1B2C3D4E5F6071829304033 /* LibraryViews.swift */,
+				A1B2C3D4E5F6071829304034 /* Audio */,
+				A1B2C3D4E5F6071829304011 /* Stage.swift */,
+				A1B2C3D4E5F6071829304012 /* ShotSound.swift */,
+				A1B2C3D4E5F6071829304013 /* shot.wav */,
 				6B8D0F2A4C1E4356B7D9F0A2 /* Assets.xcassets */,
 				B1E9761B59F8A2C297B303AC /* FPSPretendApp.swift */,
 				3D1AC95BE6C8304C8C57612C /* GameState.swift */,
@@ -218,6 +239,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D4E5F6071829304024 /* Audio in Resources */,
+				A1B2C3D4E5F6071829304003 /* shot.wav in Resources */,
 				4F6A8C0E2B1D4356A7C9E0F1 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -259,6 +282,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D4E5F6071829304021 /* ProgressStore.swift in Sources */,
+				A1B2C3D4E5F6071829304022 /* EnemyVisual.swift in Sources */,
+				A1B2C3D4E5F6071829304023 /* LibraryViews.swift in Sources */,
+				A1B2C3D4E5F6071829304001 /* Stage.swift in Sources */,
+				A1B2C3D4E5F6071829304002 /* ShotSound.swift in Sources */,
 				03631E905ACDE91DE0DEEBCD /* FPSPretendApp.swift in Sources */,
 				7409352C818E837A4AEF10CF /* GameState.swift in Sources */,
 				96E978645636E213C95F5F33 /* GameWorld.swift in Sources */,

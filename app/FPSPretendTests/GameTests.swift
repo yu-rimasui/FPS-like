@@ -202,7 +202,7 @@ final class GameTests: XCTestCase {
             enemy.update(time: 0.4, reducedMotion: false)
             let first = transforms(enemy.entity)
             enemy.update(time: 1.2, reducedMotion: false)
-            if motion != .lying { XCTAssertNotEqual(transforms(enemy.entity), first) }
+            if motion != .lying && motion != .sliding { XCTAssertNotEqual(transforms(enemy.entity), first) }
             if motion == .flying { XCTAssertGreaterThan(enemy.entity.visualBounds(relativeTo: nil).min.y, 0.9) }
             if motion == .skipping { XCTAssertGreaterThan(enemy.entity.position.y, motion.height) }
             signatures.append(transforms(enemy.entity))
@@ -375,7 +375,7 @@ final class GameTests: XCTestCase {
             for variant in 0..<3 {
                 let layout = stage.layout(variant: variant, using: &rng)
                 XCTAssertFalse(layout.obstacles.contains {
-                    abs($0.position.x) < $0.size.x / 2 + 0.25 && abs(3 - $0.position.z) < $0.size.z / 2 + 0.25
+                    abs(stage.playerStart.x - $0.position.x) < $0.size.x / 2 + 0.25 && abs(stage.playerStart.z - $0.position.z) < $0.size.z / 2 + 0.25
                 }, "Obstacles must not overlap the player spawn")
                 layouts.append(layout.targets)
                 XCTAssertEqual(layout.targets.count, stage.targets.count)
@@ -476,6 +476,135 @@ final class GameTests: XCTestCase {
                 XCTAssertFalse(world.canStand(at: point))
             }
         }
+    }
+
+    @MainActor func testRoamingCoversStageWithoutCrossingWallsOrStopping() throws {
+        let storage = try defaults()
+        storage.set(Array(Stage.all.indices), forKey: "progress.cleared")
+        storage.set(false, forKey: "shotSoundEnabled")
+        let state = GameState(progress: ProgressStore(defaults: storage))
+        let sound = ShotSound(defaults: storage)
+        for stageID in Stage.all.indices {
+            state.start(stageIndex: stageID)
+            let world = GameWorld(state: state, sound: sound)
+            defer { world.stop() }
+            var low = world.targets.map { SIMD2<Float>($0.position.x, $0.position.z) }
+            var high = low
+            var travelled = Array(repeating: Float.zero, count: world.targets.count)
+            var recent = travelled
+            for step in 1...1200 {
+                let previous = world.targets.map { SIMD2<Float>($0.position.x, $0.position.z) }
+                world.updateScene(time: Float(step) / 20, reducedMotion: false)
+                for id in world.targets.indices {
+                    let target = world.targets[id]
+                    let position = SIMD2<Float>(target.position.x, target.position.z)
+                    let distance = simd_distance(position, previous[id])
+                    XCTAssertTrue(world.canRoam(from: previous[id], to: position), "Stage \(stageID + 1), doll \(id) crossed a wall")
+                    XCTAssertLessThanOrEqual(distance, state.stage.motions[id].speed / 20 + 0.001, "No teleports")
+                    low[id] = simd_min(low[id], position)
+                    high[id] = simd_max(high[id], position)
+                    travelled[id] += distance
+                    recent[id] += distance
+                    if step % 40 == 0 && state.stage.motions[id].speed > 0 {
+                        XCTAssertGreaterThan(recent[id], state.stage.motions[id].speed, "A doll must keep moving through corners and dead ends")
+                        recent[id] = 0
+                    }
+                    if stageID == 3 {
+                        let bounds = target.visualBounds(relativeTo: nil)
+                        for wall in state.stage.obstacles {
+                            let minimum = wall.position - wall.size / 2
+                            let maximum = wall.position + wall.size / 2
+                            XCTAssertFalse(bounds.min.x < maximum.x && bounds.max.x > minimum.x && bounds.min.z < maximum.z && bounds.max.z > minimum.z,
+                                           "Animated body parts must also stay clear of maze walls")
+                        }
+                    }
+                }
+            }
+            for id in world.targets.indices {
+                let span = high[id] - low[id]
+                if state.stage.motions[id].speed == 0 {
+                    XCTAssertEqual(travelled[id], 0)
+                    continue
+                }
+                print("Roaming stage \(stageID + 1), doll \(id): span \(span), distance \(travelled[id])m")
+                XCTAssertGreaterThanOrEqual(span.x, 8 - 0.001)
+                XCTAssertGreaterThanOrEqual(span.y, 10 - 0.001)
+                XCTAssertGreaterThan(travelled[id], state.stage.motions[id].speed * 49)
+            }
+        }
+    }
+
+    @MainActor func testReferenceMazeJointsPassagesAndDeadEndRoutes() async throws {
+        let storage = try defaults()
+        storage.set(Array(Stage.all.indices), forKey: "progress.cleared")
+        storage.set(false, forKey: "shotSoundEnabled")
+        let state = GameState(progress: ProgressStore(defaults: storage))
+        state.start(stageIndex: 3)
+        let world = GameWorld(state: state, sound: ShotSound(defaults: storage))
+        defer { world.stop(); world.view.removeFromSuperview() }
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let host = try XCTUnwrap(scene.windows.first)
+        world.view.frame = host.bounds
+        host.addSubview(world.view)
+        world.start()
+        try await Task.sleep(for: .milliseconds(500))
+        world.setActive(false)
+        XCTAssertEqual(world.camera.position, [1.7, 1.6, 3.8])
+        XCTAssertEqual(state.stage.obstacles.count, 17)
+        func point(_ pixel: SIMD2<Float>) -> SIMD2<Float> {
+            [(pixel.x - 18) / 478 * 16 - 8, (pixel.y - 14) / 478 * 20 - 14]
+        }
+        let joints: [SIMD2<Float>] = [[18, 14], [496, 14], [496, 492], [18, 492], [108, 262], [350, 104],
+                                    [405, 254], [310, 254], [204, 200], [244, 308], [244, 402], [108, 402], [380, 402], [380, 492]]
+        for joint in joints {
+            let p = point(joint)
+            for offset: Float in [-0.04, 0, 0.04] {
+                let sample = SIMD2<Float>(p.x + offset, p.y + offset)
+                XCTAssertFalse(world.canStand(at: [sample.x, 1.6, sample.y]), "Player must not cross a seam at \(joint)")
+                XCTAssertFalse(world.canRoam(from: sample, to: sample), "Dolls must not cross a seam")
+                let hit = try XCTUnwrap(world.view.scene.raycast(origin: [sample.x, 4, sample.y], direction: [0, -1, 0], length: 6, query: .nearest).first, "Missing wall collider at \(joint), offset \(offset)")
+                XCTAssertGreaterThanOrEqual(hit.position.y, 1.79, "A visible wall joint must have a collider")
+            }
+        }
+        for passage: SIMD2<Float> in [[268, 104], [405, 308], [310, 402], [108, 348], [156, 200], [450, 200], [65, 200]] {
+            let p = point(passage)
+            XCTAssertTrue(world.canStand(at: [p.x, 1.6, p.y]), "Reference passage must stay open at \(passage)")
+            XCTAssertTrue(world.canRoam(from: p, to: p), "Passages must fit a whole doll")
+        }
+        var rng = SeededRandom(seed: 42)
+        for pixel: SIMD2<Float> in [[360, 210], [450, 55], [156, 355], [450, 440]] {
+            var previous = point(pixel)
+            let route = GameWorld.roamingRoute(from: previous, using: &rng) { world.canRoam(from: $0, to: $1) }
+            XCTAssertGreaterThan(route.count, 20, "Dead ends must have a continuous exit route")
+            for next in route.reversed() {
+                XCTAssertTrue(world.canRoam(from: previous, to: next))
+                XCTAssertLessThanOrEqual(simd_distance(previous, next), 0.8)
+                previous = next
+            }
+        }
+        let walls = world.view.scene.anchors[0].children.compactMap { $0 as? ModelEntity }.filter { $0.model != nil && $0.visualBounds(relativeTo: nil).max.y > 0.1 }
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 540, height: 540))
+        let map = renderer.image { context in
+            UIColor.white.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 540, height: 540))
+            UIColor.black.setFill()
+            for wall in walls {
+                let bounds = wall.visualBounds(relativeTo: nil)
+                let rect = CGRect(x: CGFloat((bounds.min.x + 8) / 16) * 478 + 30,
+                                  y: CGFloat((bounds.min.z + 14) / 20) * 478 + 30,
+                                  width: CGFloat(bounds.extents.x / 16) * 478,
+                                  height: CGFloat(bounds.extents.z / 20) * 478)
+                context.fill(rect)
+            }
+            UIColor.systemBlue.setFill()
+            context.fill(CGRect(x: CGFloat((world.camera.position.x + 8) / 16) * 478 + 21,
+                                y: CGFloat((world.camera.position.z + 14) / 20) * 478 + 21, width: 18, height: 18))
+        }
+        let attachment = XCTAttachment(image: map)
+        attachment.name = "ReferenceMazeTopDown"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        await captureWorld("MazeStartingView", world)
     }
 
     @MainActor func testNonARCameraMovementAndAimBounds() async throws {
@@ -593,7 +722,8 @@ final class GameTests: XCTestCase {
         let position = try XCTUnwrap(vantage, "Every enemy must be visible from an in-bounds position")
         world.camera.position = position
         world.camera.look(at: targetPosition, from: position, relativeTo: nil)
-        try await Task.sleep(for: .milliseconds(80))
+        try await Task.sleep(for: .milliseconds(16))
+        world.camera.look(at: target.position(relativeTo: nil), from: position, relativeTo: nil)
     }
 
     @MainActor private func captureWorld(_ name: String, _ world: GameWorld) async {

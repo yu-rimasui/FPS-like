@@ -75,16 +75,14 @@ final class EnemyVisual {
         guard entity.isEnabled else { return }
         setDarkened(hitAt.map { time - $0 < 1 } ?? false)
         let phase = time + origin.x * 0.3
-        let speed: Float = motion == .running ? 2.2 : 0.8
         var offset = SIMD3<Float>.zero
         var tilt: Float = motion.isLying ? 0 : .pi / 2
         var roll: Float = 0
         var swing: Float = 0
         switch motion {
         case .lying: break
-        case .sliding: offset.x = sin(time * 0.8) * 0.8
+        case .sliding: break
         case .walking, .running:
-            offset.x = sin(time * speed) * 0.8
             if !reducedMotion {
                 swing = sin(phase * (motion == .running ? 11 : 5)) * (motion == .running ? 0.95 : 0.4)
                 offset.y = abs(sin(phase * (motion == .running ? 11 : 5))) * (motion == .running ? 0.1 : 0.025)
@@ -97,7 +95,6 @@ final class EnemyVisual {
                 swing = sin(phase * 5) * 0.9
             }
         case .laughing:
-            offset.x = sin(time * 1.2) * 0.8
             if !reducedMotion {
                 roll = sin(phase * 2.4) * .pi
                 offset.y = abs(sin(roll)) * 0.45
@@ -105,20 +102,18 @@ final class EnemyVisual {
                 swing = sin(phase * 9) * 0.35
             }
         case .skipping:
-            offset.x = sin(time * 1.3) * 0.8
             if !reducedMotion {
                 offset.y = abs(sin(phase * 5)) * 0.45
                 swing = sin(phase * 5) * 0.8
             }
         case .flying:
-            offset.x = sin(time * 0.7) * 0.8
             if !reducedMotion {
                 offset.y = sin(phase * 2) * 0.18
                 roll = sin(phase * 2) * 0.12
                 swing = sin(phase * 3) * 0.25
             }
         }
-        entity.position = origin + offset
+        entity.position.y = origin.y + offset.y
         figure.orientation = simd_quatf(angle: roll, axis: [0, 0, 1]) * simd_quatf(angle: tilt, axis: [1, 0, 0])
         for (index, limb) in limbs.enumerated() {
             let direction: Float = index == 0 || index == 3 ? 1 : -1

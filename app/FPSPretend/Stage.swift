@@ -22,6 +22,18 @@ enum EnemyMotion: CaseIterable {
     case lying, sliding, walking, running, dancing, laughing, skipping, flying
 
     var isLying: Bool { self == .lying || self == .sliding || self == .laughing }
+    var speed: Float {
+        switch self {
+        case .lying: return 0.8
+        case .sliding, .dancing: return 1
+        case .walking: return 1.2
+        case .running: return 2.4
+        case .laughing: return 1.4
+        case .skipping: return 1.6
+        case .flying: return 1.5
+        }
+    }
+
     var height: Float { isLying ? 0.28 : (self == .flying ? 2.2 : 0.94) }
 }
 
@@ -41,13 +53,14 @@ struct Stage {
     let hitBudget = 15
 
     var name: String { kind.details.name }
+    var playerStart: SIMD3<Float> { kind == .laughing ? [1.7, 1.6, 3.8] : [0, 1.6, 3] }
     func hitsRequired(for targetID: Int) -> Int { ((hitBudget + targets.count * 5 - 1) / (targets.count * 5)) * 5 }
     var requiredHits: Int { hitsRequired(for: 0) * targets.count }
     var requiredTargets: Int { targets.count }
     var goal: String { "60秒以内に全\(targets.count)体・各\(hitsRequired(for: 0))回命中でクリア" }
 
     func layout<R: RandomNumberGenerator>(variant: Int, using rng: inout R) -> (targets: [SIMD3<Float>], obstacles: [Obstacle]) {
-        let mirror: Float = variant.isMultiple(of: 2) ? 1 : -1
+        let mirror: Float = kind == .laughing || variant.isMultiple(of: 2) ? 1 : -1
         let boxes = obstacles.map { Obstacle(kind: $0.kind, position: [$0.position.x * mirror, $0.position.y, $0.position.z], size: $0.size) }
         var positions: [SIMD3<Float>] = []
         for (id, target) in targets.enumerated() {
@@ -57,13 +70,35 @@ struct Stage {
                 point.x += Float.random(in: -0.2...0.2, using: &rng)
                 point.z += Float.random(in: -0.2...0.2, using: &rng)
             }
-            let blocked = boxes.contains { abs(point.x - $0.position.x) < $0.size.x / 2 + 0.8 && abs(point.z - $0.position.z) < $0.size.z / 2 + 0.8 }
+            let blocked = boxes.contains { abs(point.x - $0.position.x) < $0.size.x / 2 + 1.05 && abs(point.z - $0.position.z) < $0.size.z / 2 + 1.05 }
             let crowded = positions.contains { abs(point.x - $0.x) < 1.6 && abs(point.z - $0.z) < 1.6 }
             if blocked || crowded || abs(point.x) > 6.5 || point.z < -12.5 || point.z > 4 { point = base }
             positions.append(point)
         }
         return (positions, boxes)
     }
+
+    private static let mazeWalls: [Obstacle] = {
+        // Reference image: outer wall centres (18, 14)...(496, 492); screen top is -Z.
+        let segments: [(SIMD2<Float>, SIMD2<Float>)] = [
+            ([108, 104], [220, 104]), ([108, 104], [108, 294]),
+            ([18, 262], [108, 262]), ([350, 14], [350, 104]),
+            ([316, 104], [405, 104]), ([405, 104], [405, 262]),
+            ([204, 200], [310, 200]), ([310, 200], [310, 254]),
+            ([310, 254], [405, 254]), ([204, 200], [204, 308]),
+            ([204, 308], [257, 308]), ([244, 308], [244, 402]),
+            ([108, 402], [264, 402]), ([108, 392], [108, 402]),
+            ([405, 355], [405, 402]), ([355, 402], [405, 402]),
+            ([380, 402], [380, 492])
+        ]
+        return segments.map { a, b in
+            let start = SIMD2<Float>((a.x - 18) / 478 * 16 - 8, (a.y - 14) / 478 * 20 - 14)
+            let end = SIMD2<Float>((b.x - 18) / 478 * 16 - 8, (b.y - 14) / 478 * 20 - 14)
+            let centre = (start + end) / 2
+            return Obstacle(kind: .maze, position: [centre.x, 0.9, centre.y],
+                            size: [abs(end.x - start.x) + 0.36, 1.8, abs(end.y - start.y) + 0.36])
+        }
+    }()
 
     static let all: [Stage] = [
         Stage(kind: .resting, motions: [.lying, .sliding, .walking],
@@ -79,11 +114,8 @@ struct Stage {
               obstacles: [Obstacle(kind: .ball, position: [-2, 0.65, -5], size: [1.3, 1.3, 1.3]),
                           Obstacle(kind: .ball, position: [2, 0.8, -6], size: [1.6, 1.6, 1.6])]),
         Stage(kind: .laughing, motions: [.laughing, .laughing, .laughing, .laughing],
-              targets: [[-5, 0.28, -3], [5, 0.28, -3], [-4, 0.28, -10], [4, 0.28, -10]],
-              obstacles: [Obstacle(kind: .maze, position: [0, 0.9, -3], size: [0.3, 1.8, 4]),
-                          Obstacle(kind: .maze, position: [-3, 0.9, -6], size: [4.5, 1.8, 0.3]),
-                          Obstacle(kind: .maze, position: [3, 0.9, -7], size: [4.5, 1.8, 0.3]),
-                          Obstacle(kind: .maze, position: [0, 0.9, -10], size: [0.3, 1.8, 4])]),
+              targets: [[-6.4, 0.28, -12], [6.4, 0.28, -12], [-6.4, 0.28, 3.8], [1.4, 0.28, 0.7]],
+              obstacles: mazeWalls),
         Stage(kind: .flying, motions: [.skipping, .skipping, .flying, .flying],
               targets: [[-3, 0.94, -2], [3, 0.94, -2], [-3, 2.2, -9], [3, 2.2, -9]],
               obstacles: [Obstacle(kind: .meteor, position: [-2, 0.7, -5], size: [1.4, 1.4, 1.4]),

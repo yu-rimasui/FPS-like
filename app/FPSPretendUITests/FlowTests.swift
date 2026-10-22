@@ -1,18 +1,18 @@
 import XCTest
 
 final class FlowTests: XCTestCase {
-    @MainActor func testShotsDisappearDollAndKeepSavedProgress() {
+    @MainActor func testShotsAtMovingDollsConsumeAmmoAndKeepSavedProgress() {
         let app = XCUIApplication()
         app.launch()
         selectFirstStage(app)
         let savedProgress = app.staticTexts["stageProgress"].label
         XCTAssertTrue(savedProgress.contains("0/15"))
         app.buttons["fireButton"].tap(withNumberOfTaps: 5, numberOfTouches: 1)
-        XCTAssertEqual(app.staticTexts["scoreLabel"].label, "000500")
-        XCTAssertTrue(app.staticTexts["stageProgress"].label.contains("5/15"))
-        capture("FirstDollDisappeared", app: app)
+        XCTAssertTrue(app.staticTexts["ammoLabel"].label.contains("13"))
+        XCTAssertTrue(app.buttons["fireButton"].isEnabled)
+        capture("ShotsAtMovingDolls", app: app)
         app.buttons["fireButton"].tap()
-        XCTAssertEqual(app.staticTexts["scoreLabel"].label, "000500", "Disappeared dolls must not accept hits")
+        XCTAssertTrue(app.staticTexts["ammoLabel"].label.contains("12"))
         app.buttons["leaveStageButton"].tap()
         let saved = app.staticTexts["savedProgress"].label
         app.terminate()
@@ -31,7 +31,7 @@ final class FlowTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["stageInstruction"].exists)
         capture("Game", app: app)
         app.buttons["fireButton"].tap()
-        XCTAssertEqual(app.staticTexts["scoreLabel"].label, "000100")
+        XCTAssertTrue(app.staticTexts["ammoLabel"].label.contains("17"))
         app.buttons["leaveStageButton"].tap()
         XCTAssertTrue(app.buttons["collectionButton"].waitForExistence(timeout: 10))
         let savedProgress = app.staticTexts["savedProgress"].label

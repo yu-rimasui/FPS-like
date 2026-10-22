@@ -18,6 +18,9 @@ final class GameWorld: NSObject {
     private var movingObstacles: [(definition: Stage.Obstacle, entity: Entity)] = []
     private(set) var targets: [ModelEntity] = []
     private(set) var enemies: [EnemyVisual] = []
+    private var routes: [[SIMD2<Float>]] = []
+    private var navigationBounds: [BoundingBox] = []
+    private var rng = SystemRandomNumberGenerator()
     private var elapsed: Float = 0
     private let startedAt = ProcessInfo.processInfo.systemUptime
     private var stopped = false
@@ -31,7 +34,7 @@ final class GameWorld: NSObject {
         view.renderOptions = [.disableMotionBlur, .disableDepthOfField]
         view.scene.addAnchor(root)
         camera.camera.fieldOfViewInDegrees = 65
-        camera.position = [0, 1.6, 3]
+        camera.position = state.stage.playerStart
         root.addChild(camera)
         orientCamera()
         let light = DirectionalLight()
@@ -42,14 +45,24 @@ final class GameWorld: NSObject {
         let sage = UIColor(red: 0.72, green: 0.79, blue: 0.61, alpha: 1)
         let coral = UIColor(red: 0.93, green: 0.67, blue: 0.57, alpha: 1)
         addSolid(size: [16, 0.2, 20], position: [0, -0.1, -4], color: paper)
-        addSolid(size: [16, 2.4, 0.3], position: [0, 1.2, -14], color: sage)
-        addSolid(size: [16, 2.4, 0.3], position: [0, 1.2, 6], color: sage)
-        addSolid(size: [0.3, 2.4, 20], position: [-8, 1.2, -4], color: sage)
-        addSolid(size: [0.3, 2.4, 20], position: [8, 1.2, -4], color: sage)
-        var rng = SystemRandomNumberGenerator()
+        addSolid(size: [16.3, 2.4, 0.3], position: [0, 1.2, -14], color: sage)
+        addSolid(size: [16.3, 2.4, 0.3], position: [0, 1.2, 6], color: sage)
+        addSolid(size: [0.3, 2.4, 20.3], position: [-8, 1.2, -4], color: sage)
+        addSolid(size: [0.3, 2.4, 20.3], position: [8, 1.2, -4], color: sage)
         let layout = state.stage.layout(variant: state.variant, using: &rng)
         for obstacle in layout.obstacles {
             addObstacle(obstacle, color: coral)
+        }
+        navigationBounds = layout.obstacles.map { obstacle in
+            var half = obstacle.size / 2
+            // Reserve the moving obstacle's swept area instead of walking into its next position.
+            switch obstacle.kind {
+            case .windmill: half.x = hypot(half.x, half.y)
+            case .ball: half *= 1.14; half.x += 1.2
+            case .meteor: half *= 1.14
+            case .wall, .maze: break
+            }
+            return BoundingBox(min: obstacle.position - half, max: obstacle.position + half)
         }
         for (id, position) in layout.targets.enumerated() {
             let enemy = EnemyVisual(motion: state.stage.motions[id], position: position,
@@ -57,6 +70,7 @@ final class GameWorld: NSObject {
             root.addChild(enemy.entity)
             enemies.append(enemy)
             targets.append(enemy.entity)
+            routes.append([])
         }
         updateScene(time: 0, reducedMotion: UIAccessibility.isReduceMotionEnabled)
     }
@@ -107,13 +121,91 @@ final class GameWorld: NSObject {
     }
 
     func canStand(at point: SIMD3<Float>) -> Bool {
-        guard abs(point.x) < 7.5, point.z > -13.5, point.z < 5.5 else { return false }
-        return !solids.contains { solid in
-            let bounds = solid.visualBounds(relativeTo: nil)
-            return bounds.max.y > 0.1 && bounds.min.y < 1.8 &&
-                point.x > bounds.min.x - 0.25 && point.x < bounds.max.x + 0.25 &&
-                point.z > bounds.min.z - 0.25 && point.z < bounds.max.z + 0.25
+        let bounds = solids.map { $0.visualBounds(relativeTo: nil) }.filter { $0.max.y > 0.1 && $0.min.y < 1.8 }
+        return Self.canTravel(from: [point.x, point.z], to: [point.x, point.z], clearance: 0.25, bounds: bounds)
+    }
+
+    static func canTravel(from: SIMD2<Float>, to: SIMD2<Float>, clearance: Float, bounds: [BoundingBox]) -> Bool {
+        for point in [from, to] {
+            guard abs(point.x) < 7.75 - clearance, point.y > -13.75 + clearance, point.y < 5.75 - clearance else { return false }
         }
+        let low = simd_min(from, to) - SIMD2(repeating: clearance)
+        let high = simd_max(from, to) + SIMD2(repeating: clearance)
+        return !bounds.contains { low.x < $0.max.x && high.x > $0.min.x && low.y < $0.max.z && high.y > $0.min.z }
+    }
+
+    func canRoam(from: SIMD2<Float>, to: SIMD2<Float>) -> Bool {
+        Self.canTravel(from: from, to: to, clearance: 1.05, bounds: navigationBounds)
+    }
+
+    private func moveEnemies(delta: Float) {
+        for (id, enemy) in enemies.enumerated() where enemy.entity.isEnabled && enemy.motion.speed > 0 {
+            var position = SIMD2<Float>(enemy.entity.position.x, enemy.entity.position.z)
+            if routes[id].isEmpty {
+                routes[id] = Self.roamingRoute(from: position, using: &rng) { from, to in
+                    canRoam(from: from, to: to)
+                }
+            }
+            var distance = enemy.motion.speed * delta
+            while distance > 0, let next = routes[id].last {
+                let direction = next - position
+                let length = simd_length(direction)
+                if length < 0.001 { routes[id].removeLast(); continue }
+                let step = min(distance, length)
+                let destination = position + direction / length * step
+                guard canRoam(from: position, to: destination) else {
+                    routes[id].removeAll()
+                    break
+                }
+                enemy.entity.orientation = simd_quatf(angle: atan2(direction.x, direction.y), axis: [0, 1, 0])
+                position = destination
+                distance -= step
+                // Finish a segment before turning so a frame cannot cut across a wall corner.
+                if step == length { routes[id].removeLast(); break }
+            }
+            enemy.entity.position.x = position.x
+            enemy.entity.position.z = position.y
+        }
+    }
+
+    static func roamingRoute<R: RandomNumberGenerator>(from position: SIMD2<Float>, using rng: inout R,
+                                                       canTravel: (SIMD2<Float>, SIMD2<Float>) -> Bool) -> [SIMD2<Float>] {
+        let cell: Float = 0.5
+        func point(_ node: SIMD2<Int>) -> SIMD2<Float> { SIMD2<Float>(Float(node.x), Float(node.y)) * cell }
+        let nearest = SIMD2<Int>(Int((position.x / cell).rounded()), Int((position.y / cell).rounded()))
+        let starts = (-1...1).flatMap { x in (-1...1).map { nearest &+ SIMD2(x, $0) } }
+            .sorted { simd_distance_squared(point($0), position) < simd_distance_squared(point($1), position) }
+        guard let start = starts.first(where: { canTravel(position, point($0)) }) else { return [] }
+        let directions: [SIMD2<Int>] = [[1, 0], [-1, 0], [0, 1], [0, -1]].shuffled(using: &rng)
+        var parents = [start: start]
+        var queue = [start]
+        var index = 0
+        // A small four-neighbour grid is enough for the maze; no navigation mesh or search library.
+        while index < queue.count {
+            let node = queue[index]
+            index += 1
+            for direction in directions {
+                let next = node &+ direction
+                guard parents[next] == nil, canTravel(point(node), point(next)) else { continue }
+                parents[next] = node
+                queue.append(next)
+            }
+        }
+        guard queue.count > 1 else { return [] }
+        let low = queue.reduce(start) { simd_min($0, $1) }
+        let high = queue.reduce(start) { simd_max($0, $1) }
+        let centre = (point(low) + point(high)) / 2
+        let corner = SIMD2(position.x < centre.x ? high.x : low.x, position.y < centre.y ? high.y : low.y)
+        func score(_ node: SIMD2<Int>) -> Int { abs(node.x - corner.x) + abs(node.y - corner.y) }
+        let best = queue.map(score).min()!
+        let candidates = queue.filter { $0 != start && score($0) <= best + 2 }
+        guard var node = candidates.randomElement(using: &rng) else { return [] }
+        var route = [point(node)]
+        while node != start {
+            node = parents[node]!
+            route.append(point(node))
+        }
+        return route
     }
 
     func look(delta: CGSize) {
@@ -196,7 +288,9 @@ final class GameWorld: NSObject {
 
     func updateScene(time: Float, reducedMotion: Bool) {
         guard !stopped else { return }
+        let delta = min(0.1, max(0, time - elapsed))
         elapsed = time
+        if state.phase == .game { moveEnemies(delta: delta) }
         for enemy in enemies { enemy.update(time: time, reducedMotion: reducedMotion) }
         for (definition, entity) in movingObstacles {
             switch definition.kind {

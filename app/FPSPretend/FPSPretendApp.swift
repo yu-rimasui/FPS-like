@@ -32,7 +32,11 @@ private struct RootView: View {
         }
         .sheet(item: $sheet) { selected in
             switch selected {
-            case .settings: SettingsView(sound: sound)
+            case .settings:
+                SettingsView(sound: sound, onTitle: state.phase == .title ? nil : {
+                    state.returnToTitle()
+                    sheet = nil
+                })
             case .stages: StageSelectView(progress: state.progress) { index in
                 sheet = nil
                 if state.start(stageIndex: index) { runStage() }

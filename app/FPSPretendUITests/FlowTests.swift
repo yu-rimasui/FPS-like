@@ -100,6 +100,32 @@ final class FlowTests: XCTestCase {
         XCTAssertTrue(slider.isEnabled)
     }
 
+    @MainActor func testSettingsReturnToStartAndRestart() {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["settingsButton"].tap()
+        XCTAssertTrue(app.buttons["closeSettingsButton"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["returnToStartButton"].exists)
+        app.buttons["closeSettingsButton"].tap()
+        selectFirstStage(app)
+        app.buttons["fireButton"].tap()
+        app.buttons["settingsButton"].tap()
+        let back = app.buttons["returnToStartButton"]
+        XCTAssertTrue(back.waitForExistence(timeout: 10))
+        XCTAssertEqual(back.label, "スタートに戻る")
+        capture("SettingsReturnToStart", app: app)
+        back.tap()
+        XCTAssertTrue(app.buttons["startButton"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["closeSettingsButton"].exists)
+        XCTAssertFalse(app.buttons["fireButton"].exists)
+        app.buttons["startButton"].tap()
+        XCTAssertTrue(app.buttons["fireButton"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.staticTexts["stageLabel"].label.contains("1/5"))
+        XCTAssertEqual(app.staticTexts["scoreLabel"].label, "000000")
+        XCTAssertTrue(app.staticTexts["ammoLabel"].label.contains("18"))
+        app.terminate()
+    }
+
     @MainActor func testTimeoutRetryAndSettingsPause() async throws {
         let app = XCUIApplication()
         app.launch()

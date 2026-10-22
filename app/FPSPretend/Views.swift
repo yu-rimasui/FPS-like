@@ -267,6 +267,7 @@ struct GameView: View {
 
 struct SettingsView: View {
     let sound: ShotSound
+    let onTitle: (() -> Void)?
     @AppStorage("shotSoundEnabled") private var enabled = true
     @AppStorage("shotSoundVolume") private var volume = 0.65
     @AppStorage("shotSoundStyle") private var style = ShotStyle.pop.rawValue
@@ -281,6 +282,11 @@ struct SettingsView: View {
                     Spacer()
                     Button("閉じる") { dismiss() }.buttonStyle(PixelButtonStyle())
                         .frame(width: 88).accessibilityIdentifier("closeSettingsButton")
+                }
+                if let onTitle {
+                    Button("スタートに戻る", action: onTitle)
+                        .buttonStyle(PixelButtonStyle())
+                        .accessibilityIdentifier("returnToStartButton")
                 }
                 GamePanel {
                     VStack(alignment: .leading, spacing: 16) {

@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7A91F9994F8FA3A5BF7AC5FC"
-               BuildableName = "FPSPretend.app"
-               BlueprintName = "FPSPretend"
-               ReferencedContainer = "container:FPSPretend.xcodeproj">
+               BuildableName = "fps-like.app"
+               BlueprintName = "fps-like"
+               ReferencedContainer = "container:fps-like.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "699979445E91F01E83776644"
-               BuildableName = "FPSPretendTests.xctest"
-               BlueprintName = "FPSPretendTests"
-               ReferencedContainer = "container:FPSPretend.xcodeproj">
+               BuildableName = "fps-likeTests.xctest"
+               BlueprintName = "fps-likeTests"
+               ReferencedContainer = "container:fps-like.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -43,9 +43,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DEE8EBCFDED7132B96C79962"
-               BuildableName = "FPSPretendUITests.xctest"
-               BlueprintName = "FPSPretendUITests"
-               ReferencedContainer = "container:FPSPretend.xcodeproj">
+               BuildableName = "fps-likeUITests.xctest"
+               BlueprintName = "fps-likeUITests"
+               ReferencedContainer = "container:fps-like.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -65,9 +65,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7A91F9994F8FA3A5BF7AC5FC"
-            BuildableName = "FPSPretend.app"
-            BlueprintName = "FPSPretend"
-            ReferencedContainer = "container:FPSPretend.xcodeproj">
+            BuildableName = "fps-like.app"
+            BlueprintName = "fps-like"
+            ReferencedContainer = "container:fps-like.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -82,9 +82,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7A91F9994F8FA3A5BF7AC5FC"
-            BuildableName = "FPSPretend.app"
-            BlueprintName = "FPSPretend"
-            ReferencedContainer = "container:FPSPretend.xcodeproj">
+            BuildableName = "fps-like.app"
+            BlueprintName = "fps-like"
+            ReferencedContainer = "container:fps-like.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

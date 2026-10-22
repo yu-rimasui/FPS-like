@@ -7,17 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A1B2C3D4E5F6071829304021 /* ProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304031; };
-		A1B2C3D4E5F6071829304022 /* EnemyVisual.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304032; };
-		A1B2C3D4E5F6071829304023 /* LibraryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304033; };
-		A1B2C3D4E5F6071829304024 /* Audio in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304034; };
-		A1B2C3D4E5F6071829304001 /* Stage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304011 /* Stage.swift */; };
-		A1B2C3D4E5F6071829304002 /* ShotSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304012 /* ShotSound.swift */; };
-		A1B2C3D4E5F6071829304003 /* shot.wav in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304013 /* shot.wav */; };
 		03631E905ACDE91DE0DEEBCD /* FPSPretendApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E9761B59F8A2C297B303AC /* FPSPretendApp.swift */; };
 		4F6A8C0E2B1D4356A7C9E0F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B8D0F2A4C1E4356B7D9F0A2 /* Assets.xcassets */; };
 		7409352C818E837A4AEF10CF /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D1AC95BE6C8304C8C57612C /* GameState.swift */; };
 		96E978645636E213C95F5F33 /* GameWorld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8B9BD1DDAEF693A874A56C /* GameWorld.swift */; };
+		A1B2C3D4E5F6071829304001 /* Stage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304011 /* Stage.swift */; };
+		A1B2C3D4E5F6071829304002 /* ShotSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304012 /* ShotSound.swift */; };
+		A1B2C3D4E5F6071829304003 /* shot.wav in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304013 /* shot.wav */; };
+		A1B2C3D4E5F6071829304021 /* ProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304031 /* ProgressStore.swift */; };
+		A1B2C3D4E5F6071829304022 /* EnemyVisual.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304032 /* EnemyVisual.swift */; };
+		A1B2C3D4E5F6071829304023 /* LibraryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304033 /* LibraryViews.swift */; };
+		A1B2C3D4E5F6071829304024 /* Audio in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304034 /* Audio */; };
 		C7545B02F17CCC020B0D22E7 /* GameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14136CCE04CF0540F8D535BC /* GameTests.swift */; };
 		E1595F87D87516919832D9C3 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DDA8AC1EB098D09CD12227 /* Views.swift */; };
 		E6E751068D2BB9FFFF83DCEC /* FlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E2FC819C86EE084FBF1A1C /* FlowTests.swift */; };
@@ -30,36 +30,36 @@
 			containerPortal = 98F54143AB4E86B28C3AFEE0 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 7A91F9994F8FA3A5BF7AC5FC;
-			remoteInfo = FPSPretend;
+			remoteInfo = "fps-like";
 		};
 		EEF71B145A2BCD5E206797D6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 98F54143AB4E86B28C3AFEE0 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 7A91F9994F8FA3A5BF7AC5FC;
-			remoteInfo = FPSPretend;
+			remoteInfo = "fps-like";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A1B2C3D4E5F6071829304031 /* ProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressStore.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6071829304032 /* EnemyVisual.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnemyVisual.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6071829304033 /* LibraryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViews.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6071829304034 /* Audio */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Audio; sourceTree = "<group>"; };
-		A1B2C3D4E5F6071829304011 /* Stage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stage.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6071829304012 /* ShotSound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShotSound.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6071829304013 /* shot.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = shot.wav; sourceTree = "<group>"; };
 		14136CCE04CF0540F8D535BC /* GameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameTests.swift; sourceTree = "<group>"; };
 		1D8B9BD1DDAEF693A874A56C /* GameWorld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameWorld.swift; sourceTree = "<group>"; };
 		3D1AC95BE6C8304C8C57612C /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
 		47DDA8AC1EB098D09CD12227 /* Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
-		5AFBD648EB1E3D1DDE4D08D5 /* FPSPretendUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = FPSPretendUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5AFBD648EB1E3D1DDE4D08D5 /* fps-likeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = fps-likeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		622B8646411E2ECE58C0C784 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		6B8D0F2A4C1E4356B7D9F0A2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		9E7113F1CF53EEACDFCF538F /* FPSPretend.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = FPSPretend.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E7113F1CF53EEACDFCF538F /* fps-like.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = fps-like.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D4E5F6071829304011 /* Stage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stage.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304012 /* ShotSound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShotSound.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304013 /* shot.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = shot.wav; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304031 /* ProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressStore.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304032 /* EnemyVisual.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnemyVisual.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304033 /* LibraryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViews.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304034 /* Audio */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Audio; sourceTree = "<group>"; };
 		B1E9761B59F8A2C297B303AC /* FPSPretendApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FPSPretendApp.swift; sourceTree = "<group>"; };
 		C3E2FC819C86EE084FBF1A1C /* FlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowTests.swift; sourceTree = "<group>"; };
-		EAEA7A65CBB6D26973ABD210 /* FPSPretendTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = FPSPretendTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAEA7A65CBB6D26973ABD210 /* fps-likeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = fps-likeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,33 +87,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		335AFFEAA5794011034DFF61 /* FPSPretendTests */ = {
+		335AFFEAA5794011034DFF61 /* fps-likeTests */ = {
 			isa = PBXGroup;
 			children = (
 				14136CCE04CF0540F8D535BC /* GameTests.swift */,
 			);
+			name = "fps-likeTests";
 			path = FPSPretendTests;
 			sourceTree = "<group>";
 		};
-		3E830443899C4D8A53255B09 /* FPSPretendUITests */ = {
+		3E830443899C4D8A53255B09 /* fps-likeUITests */ = {
 			isa = PBXGroup;
 			children = (
 				C3E2FC819C86EE084FBF1A1C /* FlowTests.swift */,
 			);
+			name = "fps-likeUITests";
 			path = FPSPretendUITests;
 			sourceTree = "<group>";
 		};
 		B28B7AF69320201D1CF206EB = {
 			isa = PBXGroup;
 			children = (
-				EF2DD7F51229EB74FF29C51D /* FPSPretend */,
-				335AFFEAA5794011034DFF61 /* FPSPretendTests */,
-				3E830443899C4D8A53255B09 /* FPSPretendUITests */,
+				EF2DD7F51229EB74FF29C51D /* fps-like */,
+				335AFFEAA5794011034DFF61 /* fps-likeTests */,
+				3E830443899C4D8A53255B09 /* fps-likeUITests */,
 				FBDC4F23F93125BBEEAE800C /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		EF2DD7F51229EB74FF29C51D /* FPSPretend */ = {
+		EF2DD7F51229EB74FF29C51D /* fps-like */ = {
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F6071829304031 /* ProgressStore.swift */,
@@ -130,15 +132,16 @@
 				47DDA8AC1EB098D09CD12227 /* Views.swift */,
 				622B8646411E2ECE58C0C784 /* Theme.swift */,
 			);
+			name = "fps-like";
 			path = FPSPretend;
 			sourceTree = "<group>";
 		};
 		FBDC4F23F93125BBEEAE800C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9E7113F1CF53EEACDFCF538F /* FPSPretend.app */,
-				EAEA7A65CBB6D26973ABD210 /* FPSPretendTests.xctest */,
-				5AFBD648EB1E3D1DDE4D08D5 /* FPSPretendUITests.xctest */,
+				9E7113F1CF53EEACDFCF538F /* fps-like.app */,
+				EAEA7A65CBB6D26973ABD210 /* fps-likeTests.xctest */,
+				5AFBD648EB1E3D1DDE4D08D5 /* fps-likeUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -146,9 +149,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		699979445E91F01E83776644 /* FPSPretendTests */ = {
+		699979445E91F01E83776644 /* fps-likeTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1068F22E181BAF41C97C22BE /* Build configuration list for PBXNativeTarget "FPSPretendTests" */;
+			buildConfigurationList = 1068F22E181BAF41C97C22BE /* Build configuration list for PBXNativeTarget "fps-likeTests" */;
 			buildPhases = (
 				023B29B0FD899573DA784717 /* Sources */,
 				7B6E2DDE3A130EE7877CDA54 /* Frameworks */,
@@ -159,14 +162,14 @@
 			dependencies = (
 				3D440C9419AB6B6AFBC4A993 /* PBXTargetDependency */,
 			);
-			name = FPSPretendTests;
-			productName = FPSPretendTests;
-			productReference = EAEA7A65CBB6D26973ABD210 /* FPSPretendTests.xctest */;
+			name = "fps-likeTests";
+			productName = "fps-likeTests";
+			productReference = EAEA7A65CBB6D26973ABD210 /* fps-likeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		7A91F9994F8FA3A5BF7AC5FC /* FPSPretend */ = {
+		7A91F9994F8FA3A5BF7AC5FC /* fps-like */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4F0F7A550F246619E2027E90 /* Build configuration list for PBXNativeTarget "FPSPretend" */;
+			buildConfigurationList = 4F0F7A550F246619E2027E90 /* Build configuration list for PBXNativeTarget "fps-like" */;
 			buildPhases = (
 				C60EA0B6D5DDD2F137F9EC9F /* Sources */,
 				0E5D37C2314A1942E1E8F26A /* Frameworks */,
@@ -176,14 +179,14 @@
 			);
 			dependencies = (
 			);
-			name = FPSPretend;
-			productName = FPSPretend;
-			productReference = 9E7113F1CF53EEACDFCF538F /* FPSPretend.app */;
+			name = "fps-like";
+			productName = "fps-like";
+			productReference = 9E7113F1CF53EEACDFCF538F /* fps-like.app */;
 			productType = "com.apple.product-type.application";
 		};
-		DEE8EBCFDED7132B96C79962 /* FPSPretendUITests */ = {
+		DEE8EBCFDED7132B96C79962 /* fps-likeUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DA4D73412BF69D59AF5C86AF /* Build configuration list for PBXNativeTarget "FPSPretendUITests" */;
+			buildConfigurationList = DA4D73412BF69D59AF5C86AF /* Build configuration list for PBXNativeTarget "fps-likeUITests" */;
 			buildPhases = (
 				B14C995E2E6DCA201CBBF8E3 /* Sources */,
 				D0DE26F10EAA86A19BC6A3C0 /* Frameworks */,
@@ -194,9 +197,9 @@
 			dependencies = (
 				B1A63D7260DFA9FCB7404B72 /* PBXTargetDependency */,
 			);
-			name = FPSPretendUITests;
-			productName = FPSPretendUITests;
-			productReference = 5AFBD648EB1E3D1DDE4D08D5 /* FPSPretendUITests.xctest */;
+			name = "fps-likeUITests";
+			productName = "fps-likeUITests";
+			productReference = 5AFBD648EB1E3D1DDE4D08D5 /* fps-likeUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -213,7 +216,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 862894B703A6DEDF96A9DD6C /* Build configuration list for PBXProject "FPSPretend" */;
+			buildConfigurationList = 862894B703A6DEDF96A9DD6C /* Build configuration list for PBXProject "fps-like" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = ja;
 			hasScannedForEncodings = 0;
@@ -227,9 +230,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				7A91F9994F8FA3A5BF7AC5FC /* FPSPretend */,
-				699979445E91F01E83776644 /* FPSPretendTests */,
-				DEE8EBCFDED7132B96C79962 /* FPSPretendUITests */,
+				7A91F9994F8FA3A5BF7AC5FC /* fps-like */,
+				699979445E91F01E83776644 /* fps-likeTests */,
+				DEE8EBCFDED7132B96C79962 /* fps-likeUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -300,12 +303,12 @@
 /* Begin PBXTargetDependency section */
 		3D440C9419AB6B6AFBC4A993 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 7A91F9994F8FA3A5BF7AC5FC /* FPSPretend */;
+			target = 7A91F9994F8FA3A5BF7AC5FC /* fps-like */;
 			targetProxy = EEF71B145A2BCD5E206797D6 /* PBXContainerItemProxy */;
 		};
 		B1A63D7260DFA9FCB7404B72 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 7A91F9994F8FA3A5BF7AC5FC /* FPSPretend */;
+			target = 7A91F9994F8FA3A5BF7AC5FC /* fps-like */;
 			targetProxy = 8BA0726B91A8A0693C3F4061 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -325,7 +328,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FPSPretend.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FPSPretend";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fps-like.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/fps-like";
 			};
 			name = Debug;
 		};
@@ -343,7 +346,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FPSPretend.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FPSPretend";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fps-like.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/fps-like";
 			};
 			name = Release;
 		};
@@ -361,7 +364,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_TARGET_NAME = FPSPretend;
+				TEST_TARGET_NAME = "fps-like";
 			};
 			name = Debug;
 		};
@@ -423,7 +426,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_TARGET_NAME = FPSPretend;
+				TEST_TARGET_NAME = "fps-like";
 			};
 			name = Release;
 		};
@@ -434,7 +437,7 @@
 				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphoneos*]" = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "FPSもどき";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
@@ -445,10 +448,12 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretend;
+				PRODUCT_MODULE_NAME = FPSPretend;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -503,7 +508,7 @@
 				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphoneos*]" = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "FPSもどき";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
@@ -514,10 +519,12 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.tryfps.FPSPretend;
+				PRODUCT_MODULE_NAME = FPSPretend;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -526,7 +533,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1068F22E181BAF41C97C22BE /* Build configuration list for PBXNativeTarget "FPSPretendTests" */ = {
+		1068F22E181BAF41C97C22BE /* Build configuration list for PBXNativeTarget "fps-likeTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				02F8B1101EE9CD44AEF107BF /* Debug */,
@@ -535,7 +542,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		4F0F7A550F246619E2027E90 /* Build configuration list for PBXNativeTarget "FPSPretend" */ = {
+		4F0F7A550F246619E2027E90 /* Build configuration list for PBXNativeTarget "fps-like" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DCF7FD6144E352A3FE472598 /* Debug */,
@@ -544,7 +551,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		862894B703A6DEDF96A9DD6C /* Build configuration list for PBXProject "FPSPretend" */ = {
+		862894B703A6DEDF96A9DD6C /* Build configuration list for PBXProject "fps-like" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				89E1FD6268CC0F221A2BE178 /* Debug */,
@@ -553,7 +560,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		DA4D73412BF69D59AF5C86AF /* Build configuration list for PBXNativeTarget "FPSPretendUITests" */ = {
+		DA4D73412BF69D59AF5C86AF /* Build configuration list for PBXNativeTarget "fps-likeUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				518687B073DE17D3E9FAC4FE /* Debug */,

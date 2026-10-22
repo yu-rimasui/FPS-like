@@ -16,8 +16,13 @@ final class ShotSound {
     private let defaults: UserDefaults
     private(set) var player: AVAudioPlayer?
     private(set) var hitPlayer: AVAudioPlayer?
+    private(set) var milestonePlayer: AVAudioPlayer?
     private(set) var resolutionPlayer: AVAudioPlayer?
     private(set) var lastVariants: [ShotStyle: Int] = [:]
+    private(set) var lastHitVariants: [HitMaterial: Int] = [:]
+    private var shotVoices: [AVAudioPlayer] = []
+    private var hitVoices: [AVAudioPlayer] = []
+    var activeVoiceCount: Int { players.values.filter(\.isPlaying).count }
     private(set) var loadFailures: [String] = []
     private var players: [String: AVAudioPlayer] = [:]
 
@@ -29,8 +34,11 @@ final class ShotSound {
             Logger(subsystem: "dev.tryfps.FPSPretend", category: "audio")
                 .error("音声の初期化に失敗: \(error.localizedDescription, privacy: .public)")
         }
-        let names = ShotStyle.allCases.flatMap { style in (0..<3).map { "shot_\(style.rawValue)_\($0)" } }
-            + HitMaterial.allCases.map { "hit_\($0.rawValue)" } + ["resolve", "finale"]
+        let shots = ShotStyle.allCases.flatMap { style in (0..<3).map { "shot_\(style.rawValue)_\($0)" } }
+        let hits = HitMaterial.allCases.flatMap { material in
+            ["hit_\(material.rawValue)", "hit_\(material.rawValue)_1", "hit_\(material.rawValue)_2"]
+        }
+        let names = shots + hits + ["milestone", "resolve", "finale"]
         for name in names {
             do {
                 guard let url = Bundle.main.url(forResource: name, withExtension: "wav", subdirectory: "Audio") else {
@@ -60,37 +68,58 @@ final class ShotSound {
     }
 
     func play() {
-        player?.pause()
-        guard volume > 0 else { return }
+        guard volume > 0 else { stop(); return }
         let style = ShotStyle(rawValue: defaults.string(forKey: "shotSoundStyle") ?? "pop") ?? .pop
         var rng = SystemRandomNumberGenerator()
         let variant = Self.nextVariant(after: lastVariants[style], using: &rng)
         lastVariants[style] = variant
         player = players["shot_\(style.rawValue)_\(variant)"]
-        restart(player, gain: resolutionPlayer?.isPlaying == true ? 0.24 : 0.45)
+        keepTail(player, voices: &shotVoices)
+        restart(player, gain: resolutionPlayer?.isPlaying == true ? 0.18 : 0.24)
     }
 
     func playHit(_ material: HitMaterial) {
-        hitPlayer?.pause()
-        hitPlayer = players["hit_\(material.rawValue)"]
-        restart(hitPlayer, gain: 0.3)
+        guard volume > 0 else { stop(); return }
+        var rng = SystemRandomNumberGenerator()
+        let variant = Self.nextVariant(after: lastHitVariants[material], using: &rng)
+        lastHitVariants[material] = variant
+        hitPlayer = players["hit_\(material.rawValue)" + (variant == 0 ? "" : "_\(variant)")]
+        keepTail(hitPlayer, voices: &hitVoices)
+        restart(hitPlayer, gain: 0.2)
+    }
+
+    func playMilestone() {
+        milestonePlayer = players["milestone"]
+        restart(milestonePlayer, gain: 0.18)
+    }
+
+    private func keepTail(_ audio: AVAudioPlayer?, voices: inout [AVAudioPlayer]) {
+        voices.removeAll { !$0.isPlaying || $0 === audio }
+        // Two quiet tails per role avoid cutting every tap and cap burst loudness.
+        while voices.count >= 2 { voices.removeFirst().pause() }
+        if let audio { voices.append(audio) }
     }
 
     func playResolution(final: Bool) {
         resolutionPlayer?.pause()
         resolutionPlayer = players[final ? "finale" : "resolve"]
-        restart(resolutionPlayer, gain: 0.5)
+        restart(resolutionPlayer, gain: 0.35)
     }
 
     private func restart(_ audio: AVAudioPlayer?, gain: Float) {
         guard let audio else { return }
-        // Pause keeps the buffers prepared; each role has at most one playing voice.
-        audio.pause()
+        // Pause keeps the preloaded buffer ready for the next use.
+        if audio.isPlaying { audio.pause() }
         audio.currentTime = 0
-        guard volume > 0 else { return }
+        guard volume > 0 else { stop(); return }
         audio.volume = volume * gain
         audio.play()
     }
 
-    func stop() { for audio in players.values { audio.pause(); audio.currentTime = 0 } }
+    func stop() {
+        let voices = shotVoices + hitVoices + [milestonePlayer, resolutionPlayer].compactMap { $0 }
+        for audio in voices where audio.isPlaying { audio.pause(); audio.currentTime = 0 }
+        shotVoices.removeAll()
+        hitVoices.removeAll()
+    }
 }

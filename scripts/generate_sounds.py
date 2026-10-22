@@ -50,8 +50,21 @@ if __name__ == "__main__":
     write("hit_rubber", 0.18, lambda t, r: sine(220 + 40 * sine(18, t), t) * math.exp(-23 * t))
     write("hit_paper", 0.11, lambda t, r: r.uniform(-1, 1) * (0.7 + 0.3 * sine(70, t)) * math.exp(-35 * t))
     write("hit_metal", 0.17, lambda t, r: (sine(900, t) + 0.5 * sine(1473, t) + 0.2 * sine(2301, t)) * math.exp(-25 * t))
+    # Keep the original material sounds; add two nearby timbres to each.
+    material_samples = {
+        "gel": (0.15, lambda t, r, p: sine(350 * p - 1100 * t, t) * math.exp(-25 * t)),
+        "cloth": (0.10, lambda t, r, p: (0.2 * r.uniform(-1, 1) + sine(95 * p, t)) * math.exp(-45 * t)),
+        "digital": (0.12, lambda t, r, p: sine((880 if t < 0.055 else 1320) * p, t) * math.exp(-20 * t)),
+        "rubber": (0.18, lambda t, r, p: sine(220 * p + 40 * sine(18, t), t) * math.exp(-23 * t)),
+        "paper": (0.11, lambda t, r, p: r.uniform(-1, 1) * (0.7 + 0.3 * sine(70 * p, t)) * math.exp(-35 * t)),
+        "metal": (0.17, lambda t, r, p: (sine(900 * p, t) + 0.5 * sine(1473 * p, t) + 0.2 * sine(2301 * p, t)) * math.exp(-25 * t)),
+    }
+    for material, (duration, sample) in material_samples.items():
+        for variant, pitch in [(1, 0.92), (2, 1.09)]:
+            write(f"hit_{material}_{variant}", duration, lambda t, r, p=pitch, f=sample: f(t, r, p))
+    write("milestone", 0.14, lambda t, r: (sine(659.25 if t < 0.065 else 987.77, t)) * math.exp(-18 * t))
     write("resolve", 0.36, lambda t, r: sine([523.25, 659.25, 783.99][min(2, int(t / 0.10))], t) * math.exp(-4 * t))
     write("finale", 0.8, lambda t, r: (sine([523.25, 659.25, 783.99, 1046.5][min(3, int(t / 0.16))], t)
           + 0.2 * sine(523.25, t)) * math.exp(-2 * t))
-    assert len(list(OUT.glob("*.wav"))) == 17
-    print("17 original, non-silent PCM effects generated and checked.")
+    assert len(list(OUT.glob("*.wav"))) == 30
+    print("30 original, non-silent PCM effects generated and checked.")

@@ -141,31 +141,46 @@ final class GameTests: XCTestCase {
                 let variant = try XCTUnwrap(sound.lastVariants[style])
                 XCTAssertNotEqual(variant, previous)
                 discovered.insert(variant)
-                if let oldPlayer { XCTAssertFalse(oldPlayer.isPlaying) }
+                if let oldPlayer { XCTAssertFalse(oldPlayer === sound.player) }
+                XCTAssertLessThanOrEqual(sound.activeVoiceCount, 2)
                 let player = try XCTUnwrap(sound.player)
                 XCTAssertTrue(player.isPlaying)
                 XCTAssertGreaterThan(player.duration, 0.08)
-                XCTAssertEqual(player.volume, 0.18, accuracy: 0.001)
+                XCTAssertEqual(player.volume, 0.096, accuracy: 0.001)
                 previous = variant
             }
             XCTAssertEqual(discovered, [0, 1, 2])
         }
+        sound.stop()
         for material in HitMaterial.allCases {
-            let oldHit = sound.hitPlayer
-            sound.playHit(material)
-            if let oldHit { XCTAssertFalse(oldHit.isPlaying) }
-            XCTAssertTrue(try XCTUnwrap(sound.hitPlayer).isPlaying)
+            var previous: Int?
+            for _ in 0..<30 {
+                sound.playHit(material)
+                let variant = try XCTUnwrap(sound.lastHitVariants[material])
+                XCTAssertNotEqual(variant, previous)
+                previous = variant
+                XCTAssertTrue(try XCTUnwrap(sound.hitPlayer).isPlaying)
+                XCTAssertEqual(try XCTUnwrap(sound.hitPlayer).volume, 0.08, accuracy: 0.001)
+                XCTAssertLessThanOrEqual(sound.activeVoiceCount, 2)
+            }
         }
+        sound.playMilestone()
+        XCTAssertTrue(try XCTUnwrap(sound.milestonePlayer).isPlaying)
         sound.playResolution(final: false)
         XCTAssertTrue(try XCTUnwrap(sound.resolutionPlayer).isPlaying)
         sound.playResolution(final: true)
         XCTAssertEqual(try XCTUnwrap(sound.resolutionPlayer).duration, 0.8, accuracy: 0.001)
+        for _ in 0..<40 {
+            sound.play(); sound.playHit(.rubber); sound.playMilestone()
+            XCTAssertLessThanOrEqual(sound.activeVoiceCount, 6)
+        }
         storage.set(false, forKey: "shotSoundEnabled")
         sound.stop()
-        sound.play(); sound.playHit(.paper); sound.playResolution(final: false)
+        sound.play(); sound.playHit(.paper); sound.playMilestone(); sound.playResolution(final: false)
         XCTAssertFalse(sound.player?.isPlaying ?? false)
         XCTAssertFalse(sound.hitPlayer?.isPlaying ?? false)
         XCTAssertFalse(sound.resolutionPlayer?.isPlaying ?? false)
+        XCTAssertEqual(sound.activeVoiceCount, 0)
         storage.set(true, forKey: "shotSoundEnabled")
         storage.set(0.0, forKey: "shotSoundVolume")
         sound.play(); sound.playHit(.cloth)
@@ -183,9 +198,11 @@ final class GameTests: XCTestCase {
         sound.stop()
         world.shoot()
         XCTAssertFalse(sound.player?.isPlaying ?? false, "Empty actions must stay silent")
+        let previousVariant = sound.lastVariants[.soft]
         world.reload()
         world.shoot()
-        XCTAssertTrue(sound.player?.isPlaying ?? false)
+        XCTAssertEqual(state.ammo, 17)
+        XCTAssertNotEqual(sound.lastVariants[.soft], previousVariant, "An accepted shot must trigger a fresh sound; the short clip may finish during a simulator ray query")
     }
 
     @MainActor func testSafeReplayLayoutsAndCorruptSaveBounds() throws {

@@ -22,7 +22,7 @@ struct TitleView: View {
                     .font(AppFonts.pixel(40)).tracking(5.7)
                 Rectangle().fill(AppColors.coral).frame(width: 32, height: 3).padding(.top, 28)
                 Text("戦わなくていいFPS。").font(AppFonts.pixel(14)).padding(.top, 24)
-                Text("日常のイラッを、アホに解決。").font(AppFonts.pixel(13)).padding(.top, 12)
+                Text("動く人形を、気軽にねらおう。").font(AppFonts.pixel(13)).padding(.top, 12)
             }
             .frame(maxWidth: .infinity)
             .overlay(alignment: .topTrailing) {
@@ -35,13 +35,13 @@ struct TitleView: View {
             }.padding(.top, 24).accessibilityHidden(true)
             Color.clear.frame(height: 32)
             VStack(spacing: 16) {
-                Text("全10ステージ・35〜60秒 / クリア \(progress.cleared.count)/10")
+                Text("全\(Stage.all.count)ステージ / クリア \(progress.cleared.count)/\(Stage.all.count)")
                     .font(AppFonts.pixel(12)).foregroundStyle(AppColors.muted).accessibilityIdentifier("savedProgress")
                 Button(action: onStart) { Text("▶  START · STAGE \(progress.currentStage + 1)").font(AppFonts.pixel(16)) }
                     .buttonStyle(PixelButtonStyle(fill: AppColors.sage)).accessibilityIdentifier("startButton")
                 Button("ステージ選択", action: onStages).buttonStyle(PixelButtonStyle())
                     .accessibilityIdentifier("stageSelectButton")
-                Button("イラッと解決図鑑", action: onCollection).buttonStyle(PixelButtonStyle())
+                Button("人形の図鑑", action: onCollection).buttonStyle(PixelButtonStyle())
                     .accessibilityIdentifier("collectionButton")
                 Button("✚  設定", action: onSettings)
                     .buttonStyle(PixelButtonStyle()).accessibilityIdentifier("settingsButton")
@@ -59,6 +59,7 @@ struct TitleView: View {
 struct ResultView: View {
     let state: GameState
     let onContinue: () -> Void
+    let onRetry: () -> Void
     let onTitle: () -> Void
 
     var body: some View {
@@ -69,18 +70,18 @@ struct ResultView: View {
                 Spacer()
                 PixelSpark().fill(Color(hex: 0x839471)).frame(width: 20, height: 20)
             }.padding(.top, 28)
-            Text(state.isCleared ? (state.isFinalStage ? "全10ステージ\nクリア！" : "Stage\nClear!") : "ひと休み")
+            Text(state.isCleared ? (state.isFinalStage ? "全\(Stage.all.count)ステージ\nクリア！" : "Stage\nClear!") : "ひと休み")
                 .font(AppFonts.pixel(34)).lineSpacing(3).padding(.top, 28)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("resultStatus")
             Text(state.stage.goal).font(AppFonts.pixel(12)).padding(.top, 16)
-            Text("解決 \(state.resolvedCount)/\(state.stage.requiredTargets) ・ 命中 \(state.hitCount)")
+            Text("消えた人形 \(state.resolvedCount)/\(state.stage.requiredTargets) ・ 命中 \(state.hitCount)")
                 .font(AppFonts.pixel(12)).padding(.top, 8).accessibilityIdentifier("resultProgress")
             if state.isCleared {
                 Text("「\(state.ending)」").font(AppFonts.pixel(18)).multilineTextAlignment(.leading)
                     .padding(16).frame(maxWidth: .infinity, alignment: .leading)
                     .background(AppColors.sage).padding(.top, 16).accessibilityIdentifier("resultEnding")
-                Text(state.isFinalStage ? "日常のイラッ、全10種解決。おつかれさまでした！" : "オチを図鑑に記録しました。")
+                Text(state.isFinalStage ? "全\(Stage.all.count)ステージの人形を消しました！" : "オチを図鑑に記録しました。")
                     .font(AppFonts.pixel(12)).padding(.top, 8)
             }
             GamePanel(fill: Color(hex: 0xeef0e3)) {
@@ -98,8 +99,12 @@ struct ResultView: View {
             Button(state.isCleared ? (state.isFinalStage ? "▶  ステージ1からもう一度" : "▶  次のステージへ") : "▶  もう一度", action: onContinue)
                 .buttonStyle(PixelButtonStyle(fill: AppColors.sage))
                 .accessibilityIdentifier(state.isCleared && !state.isFinalStage ? "nextStageButton" : "replayButton")
+            if state.isCleared {
+                Button("↻ 同じステージでもう一度", action: onRetry).buttonStyle(PixelButtonStyle())
+                    .padding(.top, 12).accessibilityIdentifier("retryStageButton")
+            }
             Button("タイトルへ", action: onTitle).buttonStyle(PixelButtonStyle())
-                .padding(.top, 16).accessibilityIdentifier("titleButton")
+                .padding(.top, 12).accessibilityIdentifier("titleButton")
         }
         .padding(.horizontal, 28).padding(.bottom, 22)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -165,8 +170,9 @@ struct GameView: View {
                     Text(state.stage.goal).font(AppFonts.pixel(11)).accessibilityIdentifier("stageGoal")
                     Text(state.stage.kind.details.instruction).font(AppFonts.pixel(11))
                         .accessibilityIdentifier("stageInstruction")
-                    Text("解決 \(state.resolvedCount)/\(state.stage.requiredTargets) ・ 命中 \(state.hitCount)")
-                        .font(AppFonts.pixel(11)).accessibilityIdentifier("stageProgress")
+                    Text(state.progressText).font(AppFonts.pixel(11)).accessibilityIdentifier("stageProgress")
+                    ProgressView(value: state.progressFraction).tint(Color(hex: 0x758567))
+                        .accessibilityLabel("人形の命中進捗").accessibilityIdentifier("workProgressBar")
                 }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
                     .background(AppColors.paper).overlay(Rectangle().strokeBorder(AppColors.ink))
                     .padding(.bottom, 12)
@@ -184,6 +190,11 @@ struct GameView: View {
                         .accessibilityIdentifier("leaveStageButton")
                 }.padding(.top, 18)
                 Spacer()
+                if state.phase == .resolution {
+                    Button("✓ すっきり！ 結果へ", action: state.finishResolution)
+                        .buttonStyle(PixelButtonStyle(fill: AppColors.sage))
+                        .padding(.bottom, 12).accessibilityIdentifier("finishStageButton")
+                }
                 HStack(alignment: .bottom) {
                     joystick
                     Spacer()
@@ -200,7 +211,7 @@ struct GameView: View {
                     }.frame(width: 104).disabled(state.phase != .game).opacity(state.phase == .game ? 1 : 0.45)
                 }
                 HStack {
-                    Text("イラッを気ままに解決").font(AppFonts.pixel(11))
+                    Text("人形を気ままにねらおう").font(AppFonts.pixel(11))
                     Spacer()
                     Text("\(state.ammo) / ∞").font(.system(size: 12, design: .monospaced))
                         .accessibilityLabel("残弾 \(state.ammo)").accessibilityIdentifier("ammoLabel")
@@ -275,7 +286,7 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         Toggle("SE", isOn: $enabled).font(AppFonts.pixel(16))
                             .tint(Color(hex: 0x758567)).accessibilityIdentifier("shotSoundToggle")
-                        Text("発砲・命中・解決の音をまとめて調整します。")
+                        Text("発砲・命中・節目・解決の音をまとめて調整します。")
                             .font(AppFonts.pixel(13)).foregroundStyle(AppColors.muted)
                         Divider()
                         HStack {

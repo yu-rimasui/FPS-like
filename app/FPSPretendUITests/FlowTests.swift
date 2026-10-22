@@ -1,43 +1,26 @@
 import XCTest
 
 final class FlowTests: XCTestCase {
-    @MainActor func testStageClearNextAndSavedUnlock() {
+    @MainActor func testShotsDisappearDollAndKeepSavedProgress() {
         let app = XCUIApplication()
         app.launch()
         selectFirstStage(app)
-        let aim = app.otherElements["aimArea"]
-        var yaw = 0.0
-        var pitch = -0.26
+        let savedProgress = app.staticTexts["stageProgress"].label
+        XCTAssertTrue(savedProgress.contains("0/15"))
+        app.buttons["fireButton"].tap(withNumberOfTaps: 5, numberOfTouches: 1)
+        XCTAssertEqual(app.staticTexts["scoreLabel"].label, "000500")
+        XCTAssertTrue(app.staticTexts["stageProgress"].label.contains("5/15"))
+        capture("FirstDollDisappeared", app: app)
         app.buttons["fireButton"].tap()
-        let candidates: [(Double, Double)] = [(-2, -6), (2, -6), (2, -3.5), (-2, -3.5), (0.5, -9), (-0.5, -9)]
-        for (x, z) in candidates {
-            if !app.buttons["fireButton"].isEnabled { break }
-            let nextYaw = atan2(-x, 3 - z)
-            let nextPitch = atan2(0.46 - 1.6, hypot(x, z - 3))
-            let center = aim.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-            center.press(forDuration: 0.05, thenDragTo: center.withOffset(CGVector(dx: -(nextYaw - yaw) / 0.005,
-                                                                                dy: (pitch - nextPitch) / 0.005)))
-            yaw = nextYaw
-            pitch = nextPitch
-            app.buttons["fireButton"].tap()
-        }
-        XCTAssertTrue(app.buttons["nextStageButton"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["resultEnding"].exists)
-        capture("StageClear", app: app)
-        app.buttons["nextStageButton"].tap()
-        XCTAssertTrue(app.staticTexts["stageLabel"].waitForExistence(timeout: 15))
-        XCTAssertTrue(app.staticTexts["stageLabel"].label.contains("2/10"))
-        XCTAssertTrue(app.staticTexts["stageLabel"].label.contains("あと5分ふとん"))
-        XCTAssertEqual(app.staticTexts["scoreLabel"].label, "000000")
-        capture("NextStage", app: app)
+        XCTAssertEqual(app.staticTexts["scoreLabel"].label, "000500", "Disappeared dolls must not accept hits")
         app.buttons["leaveStageButton"].tap()
         let saved = app.staticTexts["savedProgress"].label
         app.terminate()
         app.launch()
         XCTAssertEqual(app.staticTexts["savedProgress"].label, saved)
         app.buttons["stageSelectButton"].tap()
-        XCTAssertTrue(app.buttons["selectStage2"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["selectStage2"].isEnabled)
+        XCTAssertTrue(app.buttons["selectStage5"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["selectStage6"].exists)
         app.terminate()
     }
 
@@ -56,8 +39,8 @@ final class FlowTests: XCTestCase {
         let collection = app.staticTexts["collectionProgress"]
         XCTAssertTrue(collection.waitForExistence(timeout: 10))
         let savedCollection = collection.label
-        XCTAssertFalse(savedCollection.contains("オチ 0/30"))
-        XCTAssertTrue(app.staticTexts["通知スライム"].exists)
+        // Encounters persist even when an enemy has not yet been fully resolved.
+        XCTAssertTrue(app.staticTexts["ひと休みの人形"].exists)
         capture("Collection", app: app)
         app.terminate()
         app.launch()
@@ -122,19 +105,23 @@ final class FlowTests: XCTestCase {
         app.launch()
         capture("Title", app: app)
         selectFirstStage(app)
-        let before = Int(app.staticTexts["timerLabel"].label.suffix(2)) ?? 0
+        func seconds(_ label: String) -> Int {
+            let parts = label.split(separator: ":").compactMap { Int($0) }
+            return parts.count == 2 ? parts[0] * 60 + parts[1] : -1
+        }
+        let before = seconds(app.staticTexts["timerLabel"].label)
         app.buttons["settingsButton"].tap()
         XCTAssertTrue(app.switches["shotSoundToggle"].waitForExistence(timeout: 10))
         try await Task.sleep(for: .seconds(3))
         app.buttons["closeSettingsButton"].tap()
-        let after = Int(app.staticTexts["timerLabel"].label.suffix(2)) ?? 0
+        let after = seconds(app.staticTexts["timerLabel"].label)
         XCTAssertLessThanOrEqual(before - after, 1)
-        XCTAssertTrue(app.buttons["replayButton"].waitForExistence(timeout: 40))
+        XCTAssertTrue(app.buttons["replayButton"].waitForExistence(timeout: 95))
         XCTAssertEqual(app.staticTexts["resultStatus"].label, "ひと休み")
         capture("Timeout", app: app)
         app.buttons["replayButton"].tap()
         XCTAssertTrue(app.buttons["fireButton"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["stageLabel"].label.contains("1/10"))
+        XCTAssertTrue(app.staticTexts["stageLabel"].label.contains("1/5"))
         XCTAssertEqual(app.staticTexts["scoreLabel"].label, "000000")
         XCTAssertTrue(app.staticTexts["ammoLabel"].label.contains("18"))
         app.terminate()
@@ -146,7 +133,7 @@ final class FlowTests: XCTestCase {
         XCTAssertTrue(app.buttons["selectStage1"].waitForExistence(timeout: 10))
         app.buttons["selectStage1"].tap()
         XCTAssertTrue(app.buttons["fireButton"].waitForExistence(timeout: 15))
-        XCTAssertTrue(app.staticTexts["stageLabel"].label.contains("1/10"))
+        XCTAssertTrue(app.staticTexts["stageLabel"].label.contains("1/5"))
     }
 
     @MainActor private func capture(_ name: String, app: XCUIApplication) {

@@ -39,12 +39,12 @@ struct CollectionView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 HStack {
-                    Text("イラッと解決図鑑").font(AppFonts.pixel(21)).accessibilityAddTraits(.isHeader)
+                    Text("人形の図鑑").font(AppFonts.pixel(21)).accessibilityAddTraits(.isHeader)
                     Spacer()
                     Button("閉じる") { dismiss() }.frame(minWidth: 60, minHeight: 44)
                         .accessibilityIdentifier("closeLibraryButton")
                 }
-                Text("出会い \(progress.seen.count)/10 ・ 発見したオチ \(progress.endings.count)/30")
+                Text("出会い \(progress.seen.count)/\(Stage.all.count) ・ 発見したオチ \(progress.endings.count)/\(Stage.all.count * 3)")
                     .font(AppFonts.pixel(13)).accessibilityIdentifier("collectionProgress")
                 ForEach(Stage.all.indices, id: \.self) { index in
                     GamePanel {

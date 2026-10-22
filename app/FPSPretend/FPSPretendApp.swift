@@ -24,7 +24,7 @@ private struct RootView: View {
                           onStages: { sheet = .stages }, onCollection: { sheet = .collection })
             case .game, .resolution:
                 if let world { GameView(state: state, world: world, onSettings: { sheet = .settings }, onTitle: state.returnToTitle) }
-            case .result: ResultView(state: state, onContinue: continueGame, onTitle: state.returnToTitle)
+            case .result: ResultView(state: state, onContinue: continueGame, onRetry: retryGame, onTitle: state.returnToTitle)
             }
         }
         .onChange(of: state.phase) { _, phase in
@@ -59,6 +59,12 @@ private struct RootView: View {
     private func continueGame() {
         guard state.phase == .result else { return }
         state.continueFromResult()
+        runStage()
+    }
+
+    private func retryGame() {
+        guard state.phase == .result else { return }
+        state.retry()
         runStage()
     }
 

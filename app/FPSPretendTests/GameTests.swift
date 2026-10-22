@@ -18,6 +18,41 @@ final class GameTests: XCTestCase {
         return try XCTUnwrap(UserDefaults(suiteName: suite))
     }
 
+    @MainActor private func hit(_ state: GameState, target: Int, now: Double) {
+        if state.ammo == 0 { state.reload(now: now) }
+        XCTAssertTrue(state.fire(now: now))
+        XCTAssertTrue(state.registerHit(targetID: target, now: now))
+    }
+
+    @MainActor private func clear(_ state: GameState, now: Double) {
+        for target in state.targetHits.indices {
+            for _ in state.targetHits[target]..<state.stage.hitsRequired(for: target) { hit(state, target: target, now: now) }
+        }
+    }
+
+    @MainActor func testFiveStageSpecificationAndRoundedHitLimits() {
+        XCTAssertEqual(Stage.all.count, 5)
+        XCTAssertEqual(EnemyKind.allCases.count, 5)
+        XCTAssertEqual(Stage.all.map(\.requiredTargets), [3, 4, 4, 4, 4])
+        XCTAssertEqual(Stage.all.map(\.requiredHits), [15, 20, 20, 20, 20])
+        let motions: [[EnemyMotion]] = [
+            [.lying, .sliding, .walking], [.walking, .walking, .running, .running],
+            [.dancing, .dancing, .dancing, .dancing], [.laughing, .laughing, .laughing, .laughing],
+            [.skipping, .skipping, .flying, .flying]
+        ]
+        let obstacles: [Stage.Obstacle.Kind] = [.wall, .windmill, .ball, .maze, .meteor]
+        for (id, stage) in Stage.all.enumerated() {
+            XCTAssertEqual(stage.timeLimit, 60)
+            XCTAssertEqual(stage.motions, motions[id])
+            XCTAssertEqual(stage.motions.count, stage.targets.count)
+            XCTAssertTrue(stage.obstacles.allSatisfy { $0.kind == obstacles[id] })
+            for target in stage.targets.indices {
+                let expected = Int(ceil(Double(stage.hitBudget) / Double(stage.targets.count) / 5)) * 5
+                XCTAssertEqual(stage.hitsRequired(for: target), expected)
+            }
+        }
+    }
+
     @MainActor func testProgressAndCollectionSurviveInterruptionAndRetry() throws {
         let storage = try defaults()
         let progress = ProgressStore(defaults: storage)
@@ -25,12 +60,11 @@ final class GameTests: XCTestCase {
         XCTAssertFalse(state.start(stageIndex: 1, now: 10))
         XCTAssertTrue(state.start(stageIndex: 0, now: 10))
         XCTAssertEqual(state.variant, 0)
-        XCTAssertTrue(state.fire(now: 11))
-        XCTAssertTrue(state.registerHit(targetID: 0, now: 11))
-        state.tick(now: 12.5)
-        XCTAssertTrue(state.hitFeedback, "The punchline must remain visible long enough to read")
-        XCTAssertFalse(state.registerHit(targetID: 0, now: 11), "A solved enemy cannot be scored twice")
-        XCTAssertEqual(state.score, 100)
+        for _ in 0..<state.stage.hitsRequired(for: 0) { hit(state, target: 0, now: 11) }
+        XCTAssertFalse(state.isCleared)
+        XCTAssertTrue(state.fire(now: 12))
+        XCTAssertFalse(state.registerHit(targetID: 0, now: 12))
+        XCTAssertEqual(state.hitCount, 5)
         state.returnToTitle()
         let restored = ProgressStore(defaults: storage)
         XCTAssertTrue(restored.seen.contains(0))
@@ -38,40 +72,41 @@ final class GameTests: XCTestCase {
         XCTAssertEqual(restored.unlockedStage, 0)
         state.start(stageIndex: 0, now: 100)
         XCTAssertEqual(state.variant, 1)
-        state.tick(now: 135)
+        state.tick(now: 160)
         XCTAssertFalse(state.isCleared)
-        state.continueFromResult(now: 140)
+        state.continueFromResult(now: 200)
         XCTAssertEqual(state.variant, 2)
         XCTAssertTrue(progress.endings.contains("0:0"))
-        for target in state.targetHits.indices {
-            XCTAssertTrue(state.fire(now: 141))
-            XCTAssertTrue(state.registerHit(targetID: target, now: 141))
-        }
+        clear(state, now: 201)
         XCTAssertEqual(state.phase, .resolution)
-        XCTAssertEqual(ProgressStore(defaults: storage).unlockedStage, 1, "A clear must be saved before the ending animation finishes")
+        XCTAssertEqual(ProgressStore(defaults: storage).unlockedStage, 1)
         XCTAssertTrue(ProgressStore(defaults: storage).endings.contains("0:2"))
-        state.tick(now: 144)
-        state.continueFromResult(now: 145)
+        state.finishResolution()
+        state.continueFromResult(now: 205)
         XCTAssertEqual(state.stageIndex, 1)
+        XCTAssertEqual(state.remainingTime, 60)
+        XCTAssertEqual(state.hitCount, 0)
+        XCTAssertEqual(state.resolvedCount, 0)
         XCTAssertEqual(ProgressStore(defaults: storage).currentStage, 1)
     }
 
-    @MainActor func testAllTenStagesResolveThenRestartWithoutLosingCollection() throws {
+    @MainActor func testAllFiveStagesResolveThenRestartWithoutLosingCollection() throws {
         let storage = try defaults()
         let progress = ProgressStore(defaults: storage)
         let state = GameState(progress: progress)
-        XCTAssertEqual(Stage.all.count, 10)
-        XCTAssertEqual(Set(Stage.all.map(\.kind)).count, 10)
         state.start(stageIndex: 0, now: 10)
         for (index, stage) in Stage.all.enumerated() {
-            let now = Double(index) * 100 + 10
+            let now = Double(index) * 200 + 10
             XCTAssertEqual(state.stageIndex, index)
-            XCTAssertTrue((30...60).contains(stage.timeLimit))
             for target in state.targetHits.indices {
-                for _ in 0..<stage.kind.hitsToResolve {
-                    if state.ammo == 0 { state.reload(now: now) }
-                    XCTAssertTrue(state.fire(now: now))
-                    XCTAssertTrue(state.registerHit(targetID: target, now: now))
+                for count in 0..<stage.hitsRequired(for: target) {
+                    if target == state.targetHits.count - 1 && count == stage.hitsRequired(for: target) - 1 {
+                        XCTAssertFalse(state.isCleared, "Every doll must disappear before clearing")
+                    }
+                    hit(state, target: target, now: now)
+                    let hitCount = state.hitCount
+                    XCTAssertFalse(state.registerHit(targetID: target, now: now))
+                    XCTAssertEqual(state.hitCount, hitCount)
                 }
             }
             XCTAssertEqual(state.phase, .resolution)
@@ -79,25 +114,152 @@ final class GameTests: XCTestCase {
             XCTAssertEqual(state.resolvedCount, stage.targets.count)
             XCTAssertEqual(state.hitCount, stage.requiredHits)
             XCTAssertFalse(state.fire(now: now))
-            state.continueFromResult(now: now)
-            XCTAssertEqual(state.phase, .resolution)
             state.tick(now: now + 3)
             XCTAssertEqual(state.phase, .result)
             XCTAssertTrue(progress.cleared.contains(index))
             XCTAssertTrue(progress.endings.contains("\(index):0"))
-            state.continueFromResult(now: now + 100)
+            state.continueFromResult(now: now + 200)
+            XCTAssertEqual(state.hitCount, 0)
+            XCTAssertEqual(state.remainingTime, 60)
         }
         XCTAssertEqual(state.stageIndex, 0)
         XCTAssertEqual(state.phase, .game)
         XCTAssertEqual(state.score, 0)
         let reloaded = ProgressStore(defaults: storage)
-        XCTAssertEqual(reloaded.cleared.count, 10)
-        XCTAssertEqual(reloaded.seen.count, 10)
-        XCTAssertEqual(reloaded.endings.count, 10)
-        XCTAssertEqual(reloaded.unlockedStage, 9)
+        XCTAssertEqual(reloaded.cleared.count, 5)
+        XCTAssertEqual(reloaded.seen.count, 5)
+        XCTAssertEqual(reloaded.endings.count, 5)
+        XCTAssertEqual(reloaded.unlockedStage, 4)
         state.returnToTitle()
-        XCTAssertEqual(state.phase, .title)
-        XCTAssertTrue(state.start(stageIndex: 9))
+        XCTAssertTrue(state.start(stageIndex: 4))
+        XCTAssertFalse(state.start(stageIndex: 5))
+    }
+
+    @MainActor func testCompletionCommentsKeepAlternateEndings() throws {
+        let storage = try defaults()
+        storage.set(Array(Stage.all.indices), forKey: "progress.cleared")
+        let state = GameState(progress: ProgressStore(defaults: storage))
+        for index in Stage.all.indices {
+            var endings: Set<String> = []
+            for _ in 0..<3 {
+                state.start(stageIndex: index, now: 0)
+                clear(state, now: 1)
+                XCTAssertEqual(state.message, state.ending)
+                XCTAssertTrue(state.isCleared)
+                endings.insert(state.ending)
+            }
+            XCTAssertEqual(endings.count, 3)
+        }
+    }
+
+    @MainActor func testDeadlineAndLastHitCannotCompleteTwice() throws {
+        let state = GameState(progress: ProgressStore(defaults: try defaults()))
+        for beforeDeadline in [true, false] {
+            state.start(stageIndex: 0, now: 100)
+            for target in state.targetHits.indices {
+                let count = state.stage.hitsRequired(for: target) - (target == 2 ? 1 : 0)
+                for _ in 0..<count { hit(state, target: target, now: 101) }
+            }
+            XCTAssertTrue(state.fire(now: 159.9))
+            XCTAssertEqual(state.registerHit(targetID: 2, now: beforeDeadline ? 159.99 : 160), beforeDeadline)
+            XCTAssertEqual(state.isCleared, beforeDeadline)
+            XCTAssertEqual(state.phase, beforeDeadline ? .resolution : .result)
+            let hits = state.hitCount
+            state.tick(now: 160)
+            XCTAssertFalse(state.registerHit(targetID: 2, now: 160))
+            XCTAssertEqual(state.hitCount, hits)
+            state.tick(now: 170)
+            XCTAssertEqual(state.phase, .result)
+            state.continueFromResult(now: 200)
+            XCTAssertEqual(state.stageIndex, beforeDeadline ? 1 : 0)
+            XCTAssertEqual(state.remainingTime, 60)
+            XCTAssertEqual(state.hitCount, 0)
+            state.tick(now: 201)
+            XCTAssertEqual(state.phase, .game, "The previous deadline must not finish the next stage")
+        }
+    }
+
+    @MainActor func testOriginalDollDimensionsAndDistinctMotions() {
+        let original: [(SIMD3<Float>, SIMD3<Float>)] = [
+            ([0.6, 0.32, 0.7], [0, 0, 0]), ([0.4, 0.36, 0.4], [0, 0, -0.57]),
+            ([0.22, 0.24, 0.65], [-0.44, -0.02, 0]), ([0.22, 0.24, 0.65], [0.44, -0.02, 0]),
+            ([0.23, 0.27, 0.6], [-0.17, -0.02, 0.62]), ([0.23, 0.27, 0.6], [0.17, -0.02, 0.62])
+        ]
+        let doll = EnemyVisual(motion: .lying, position: [0, 0.28, 0], color: EnemyVisual.colors[0], requiredHits: 5)
+        let figure = doll.entity.children[0]
+        let parts = models(figure).filter { $0.model?.materials.first is SimpleMaterial }
+        XCTAssertEqual(parts.count, 6)
+        for (part, expected) in zip(parts, original) {
+            XCTAssertLessThan(simd_distance(part.model!.mesh.bounds.extents, expected.0), 0.0001)
+            XCTAssertLessThan(simd_distance(part.position(relativeTo: figure), expected.1), 0.0001)
+        }
+        let still = transforms(doll.entity)
+        doll.update(time: 2, reducedMotion: false)
+        XCTAssertEqual(transforms(doll.entity), still)
+        var signatures: [[Transform]] = []
+        for motion in EnemyMotion.allCases {
+            let enemy = EnemyVisual(motion: motion, position: [0, motion.height, 0], color: EnemyVisual.colors[0], requiredHits: 5)
+            enemy.update(time: 0.4, reducedMotion: false)
+            let first = transforms(enemy.entity)
+            enemy.update(time: 1.2, reducedMotion: false)
+            if motion != .lying { XCTAssertNotEqual(transforms(enemy.entity), first) }
+            if motion == .flying { XCTAssertGreaterThan(enemy.entity.visualBounds(relativeTo: nil).min.y, 0.9) }
+            if motion == .skipping { XCTAssertGreaterThan(enemy.entity.position.y, motion.height) }
+            signatures.append(transforms(enemy.entity))
+            enemy.update(time: 2, reducedMotion: true)
+            let quiet = transforms(enemy.entity.children[0])
+            enemy.update(time: 3, reducedMotion: true)
+            XCTAssertEqual(transforms(enemy.entity.children[0]), quiet)
+        }
+        XCTAssertNotEqual(signatures[2], signatures[3], "Walking and running must differ in limbs and movement")
+    }
+
+    @MainActor func testHitColorRestoresAndRepeatedHitExtendsOnlyThatDoll() {
+        for color in EnemyVisual.colors {
+            let enemy = EnemyVisual(motion: .lying, position: [0, 0.28, 0], color: color, requiredHits: 5)
+            let other = EnemyVisual(motion: .lying, position: [0, 0.28, -3], color: color, requiredHits: 5)
+            let part = models(enemy.entity)[0]
+            func tint() -> UIColor { (part.model!.materials[0] as! SimpleMaterial).color.tint }
+            let original = tint()
+            let otherOriginal = (models(other.entity)[0].model!.materials[0] as! SimpleMaterial).color.tint
+            enemy.react(hits: 1, time: 10)
+            XCTAssertTrue(enemy.isDarkened)
+            XCTAssertNotEqual(tint(), original)
+            var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+            color.getRed(&r, green: &g, blue: &b, alpha: &a)
+            var dr: CGFloat = 0, dg: CGFloat = 0, db: CGFloat = 0, da: CGFloat = 0
+            tint().getRed(&dr, green: &dg, blue: &db, alpha: &da)
+            XCTAssertEqual(dr / r, dg / g, accuracy: 0.001)
+            XCTAssertEqual(dg / g, db / b, accuracy: 0.001)
+            XCTAssertEqual(dr / r, 0.6, accuracy: 0.001)
+            enemy.update(time: 10.99, reducedMotion: false)
+            XCTAssertTrue(enemy.isDarkened)
+            enemy.update(time: 11, reducedMotion: false)
+            XCTAssertEqual(tint(), original)
+            enemy.react(hits: 2, time: 12)
+            enemy.react(hits: 3, time: 12.75)
+            enemy.update(time: 13, reducedMotion: true)
+            XCTAssertTrue(enemy.isDarkened)
+            enemy.update(time: 13.75, reducedMotion: true)
+            XCTAssertFalse(enemy.isDarkened)
+            XCTAssertEqual(tint(), original)
+            other.update(time: 13.75, reducedMotion: false)
+            XCTAssertFalse(other.isDarkened)
+            XCTAssertEqual((models(other.entity)[0].model!.materials[0] as! SimpleMaterial).color.tint, otherOriginal)
+            enemy.react(hits: 4, time: 14)
+            enemy.react(hits: 5, time: 14.1)
+            XCTAssertFalse(enemy.entity.isEnabled)
+            XCTAssertNil(enemy.entity.collision)
+        }
+    }
+
+    @MainActor private func models(_ entity: Entity) -> [ModelEntity] {
+        let own = (entity as? ModelEntity).map { $0.model == nil ? [] : [$0] } ?? []
+        return own + entity.children.flatMap { models($0) }
+    }
+
+    @MainActor private func transforms(_ entity: Entity) -> [Transform] {
+        [entity.transform] + entity.children.flatMap { transforms($0) }
     }
 
     @MainActor func testPauseDeadlineAmmoAndInvalidHits() throws {
@@ -109,19 +271,19 @@ final class GameTests: XCTestCase {
         XCTAssertFalse(state.registerHit(targetID: -1, now: 11))
         XCTAssertEqual(state.hitCount, 0)
         state.reload(now: 12)
-        XCTAssertEqual(state.ammo, 18)
         state.pause(now: 20)
         state.tick(now: 1000)
-        XCTAssertEqual(state.remainingTime, 25)
+        XCTAssertEqual(state.remainingTime, 50)
         XCTAssertFalse(state.fire(now: 1000))
         state.resume(now: 1000)
-        state.tick(now: 1024.1)
+        state.tick(now: 1049.1)
         XCTAssertEqual(state.remainingTime, 1)
-        XCTAssertFalse(state.fire(now: 1025))
+        XCTAssertFalse(state.fire(now: 1050))
         XCTAssertEqual(state.phase, .result)
-        state.continueFromResult(now: 1030)
+        XCTAssertFalse(state.isCleared)
+        state.continueFromResult(now: 1090)
         XCTAssertEqual(state.stageIndex, 0)
-        XCTAssertEqual(state.remainingTime, 35)
+        XCTAssertEqual(state.remainingTime, 60)
         XCTAssertEqual(state.ammo, 18)
     }
 
@@ -208,9 +370,13 @@ final class GameTests: XCTestCase {
     @MainActor func testSafeReplayLayoutsAndCorruptSaveBounds() throws {
         var rng = SeededRandom(seed: 17)
         for stage in Stage.all {
+            XCTAssertGreaterThanOrEqual(stage.obstacles.count, 2)
             var layouts: [[SIMD3<Float>]] = []
             for variant in 0..<3 {
                 let layout = stage.layout(variant: variant, using: &rng)
+                XCTAssertFalse(layout.obstacles.contains {
+                    abs($0.position.x) < $0.size.x / 2 + 0.25 && abs(3 - $0.position.z) < $0.size.z / 2 + 0.25
+                }, "Obstacles must not overlap the player spawn")
                 layouts.append(layout.targets)
                 XCTAssertEqual(layout.targets.count, stage.targets.count)
                 for point in layout.targets {
@@ -242,6 +408,76 @@ final class GameTests: XCTestCase {
         XCTAssertTrue(restored.endings.isEmpty)
     }
 
+    @MainActor func testOldTenStageSaveKeepsValidProgressAndVisitCounts() throws {
+        let storage = try defaults()
+        storage.set(Array(0..<10), forKey: "progress.cleared")
+        storage.set(Array(0..<10), forKey: "progress.seen")
+        storage.set(Array(repeating: 2, count: 10), forKey: "progress.visits")
+        storage.set(9, forKey: "progress.current")
+        storage.set(["0:1", "4:2", "9:0"], forKey: "progress.endings")
+        let progress = ProgressStore(defaults: storage)
+        XCTAssertEqual(progress.cleared, Set(0..<5))
+        XCTAssertEqual(progress.seen, Set(0..<5))
+        XCTAssertEqual(progress.endings, ["0:1", "4:2"])
+        XCTAssertEqual(progress.currentStage, 4)
+        XCTAssertEqual(progress.beginVisit(0), 2)
+    }
+
+    @MainActor func testStoppedWorldCannotChangeNextStageOrCarryHitColors() throws {
+        let storage = try defaults()
+        let state = GameState(progress: ProgressStore(defaults: storage))
+        state.start(now: 0)
+        let sound = ShotSound(defaults: storage)
+        let old = GameWorld(state: state, sound: sound)
+        old.enemies[0].react(hits: 1, time: 0)
+        XCTAssertTrue(old.enemies[0].isDarkened)
+        clear(state, now: 1)
+        state.continueFromResult(now: 2)
+        old.stop()
+        let next = GameWorld(state: state, sound: sound)
+        defer { next.stop() }
+        let position = old.targets[1].position
+        old.updateScene(time: 10, reducedMotion: false)
+        old.shoot()
+        XCTAssertEqual(old.targets[1].position, position)
+        XCTAssertEqual(state.hitCount, 0)
+        XCTAssertEqual(state.shotCount, 0)
+        XCTAssertEqual(state.remainingTime, 60)
+        XCTAssertTrue(next.enemies.allSatisfy { !$0.isDarkened && $0.entity.isEnabled })
+        XCTAssertTrue(old.view.scene.anchors.isEmpty)
+    }
+
+    @MainActor func testObstaclesBlockMovementAndFollowTheirMotion() throws {
+        let storage = try defaults()
+        storage.set(Array(Stage.all.indices), forKey: "progress.cleared")
+        let state = GameState(progress: ProgressStore(defaults: storage))
+        let sound = ShotSound(defaults: storage)
+        for id in Stage.all.indices {
+            state.start(stageIndex: id)
+            let world = GameWorld(state: state, sound: sound)
+            defer { world.stop() }
+            world.updateScene(time: 0, reducedMotion: false)
+            XCTAssertTrue(world.canStand(at: [0, 1.6, 3]))
+            let definition = state.stage.obstacles[0]
+            let point = SIMD3<Float>(definition.position.x, 1.6, definition.position.z)
+            XCTAssertEqual(world.canStand(at: point), definition.kind == .meteor)
+            let animated = world.view.scene.anchors[0].children.first { $0.name == "obstacle.\(definition.kind)" }
+            if definition.kind == .wall || definition.kind == .maze { continue }
+            let entity = try XCTUnwrap(animated)
+            let before = entity.transform
+            world.updateScene(time: 1, reducedMotion: false)
+            XCTAssertNotEqual(entity.transform, before)
+            if definition.kind == .ball {
+                XCTAssertTrue(world.canStand(at: [definition.position.x - 0.8, 1.6, definition.position.z]))
+                XCTAssertFalse(world.canStand(at: [entity.position.x, 1.6, entity.position.z]))
+            }
+            if definition.kind == .meteor {
+                world.updateScene(time: 3.9, reducedMotion: false)
+                XCTAssertFalse(world.canStand(at: point))
+            }
+        }
+    }
+
     @MainActor func testNonARCameraMovementAndAimBounds() async throws {
         let storage = try defaults()
         let state = GameState(progress: ProgressStore(defaults: storage))
@@ -255,7 +491,7 @@ final class GameTests: XCTestCase {
         world.start()
         defer { world.stop(); world.view.removeFromSuperview() }
         XCTAssertEqual(world.view.cameraMode, .nonAR)
-        XCTAssertEqual(world.targets.count, 4)
+        XCTAssertEqual(world.targets.count, 3)
         XCTAssertTrue(world.targets.allSatisfy { $0.collision != nil })
         try await Task.sleep(for: .milliseconds(500))
         for direction: SIMD2<Float> in [[0, 1], [1, 0], [0, -1], [-1, 0]] {
@@ -271,7 +507,7 @@ final class GameTests: XCTestCase {
         XCTAssertTrue(world.view.scene.anchors.isEmpty)
     }
 
-    @MainActor func testRenderedTenEnemiesResolutionAndFinalResult() async throws {
+    @MainActor func testRenderedFiveStagesDisappearanceAndFinalResult() async throws {
         let storage = try defaults()
         storage.set(false, forKey: "shotSoundEnabled")
         let state = GameState(progress: ProgressStore(defaults: storage))
@@ -289,17 +525,38 @@ final class GameTests: XCTestCase {
             try await aim(world, at: world.targets[0])
             let previewPosition = world.camera.position
             await captureWorld("Stage\(index + 1)-Before", world)
+            var longestShot = 0.0
             for id in world.targets.indices {
+                storage.set(id == 0, forKey: "shotSoundEnabled")
+                storage.set(0.2, forKey: "shotSoundVolume")
+                sound.stop()
                 let target = world.targets[id]
-                for _ in 0..<state.stage.kind.hitsToResolve {
+                try await aim(world, at: target)
+                let required = state.stage.hitsRequired(for: id)
+                for hitIndex in 1...required {
                     try await aim(world, at: target)
                     if state.ammo == 0 { world.reload() }
                     let before = state.hitCount
+                    let previousSound = sound.lastHitVariants[state.stage.kind.material]
+                    let shotStarted = ProcessInfo.processInfo.systemUptime
                     world.shoot()
+                    longestShot = max(longestShot, ProcessInfo.processInfo.systemUptime - shotStarted)
+                    if id == 0 {
+                        XCTAssertNotEqual(sound.lastHitVariants[state.stage.kind.material], previousSound)
+                        if hitIndex == required { XCTAssertNotNil(sound.resolutionPlayer) }
+                        else if hitIndex * 4 / required > (hitIndex - 1) * 4 / required { XCTAssertNotNil(sound.milestonePlayer) }
+                    } else { XCTAssertEqual(sound.activeVoiceCount, 0) }
                     XCTAssertEqual(state.hitCount, before + 1, "Stage \(index + 1) rendered ray must hit")
+                    XCTAssertFalse(state.registerHit(targetID: id), "Ray callbacks cannot double count")
+                    try await Task.sleep(for: .milliseconds(16))
+                    if id == 0 && (hitIndex == (required + 1) / 2 || hitIndex == required - 1) {
+                        await captureWorld("Stage\(index + 1)-Progress\(hitIndex)", world)
+                    }
                 }
                 XCTAssertNil(target.collision, "Solved enemies must not block the remaining ones")
+                XCTAssertFalse(target.isEnabled, "Solved dolls must disappear")
             }
+            print("Stage \(index + 1): \(state.hitCount) accepted rays; longest shoot call \(String(format: "%.3f", longestShot))s")
             XCTAssertTrue(state.isCleared)
             XCTAssertEqual(state.phase, .resolution)
             world.camera.look(at: world.targets[0].position, from: previewPosition, relativeTo: nil)
@@ -308,7 +565,7 @@ final class GameTests: XCTestCase {
             state.tick(now: ProcessInfo.processInfo.systemUptime + 3)
             XCTAssertEqual(state.phase, .result)
             if state.isFinalStage {
-                let renderer = ImageRenderer(content: ResultView(state: state, onContinue: {}, onTitle: {})
+                let renderer = ImageRenderer(content: ResultView(state: state, onContinue: {}, onRetry: {}, onTitle: {})
                     .frame(width: 390, height: 844).preferredColorScheme(.light))
                 let attachment = XCTAttachment(image: try XCTUnwrap(renderer.uiImage))
                 attachment.name = "FinalClear"
@@ -319,7 +576,7 @@ final class GameTests: XCTestCase {
         }
         XCTAssertEqual(state.stageIndex, 0)
         XCTAssertEqual(state.phase, .game)
-        XCTAssertEqual(ProgressStore(defaults: storage).cleared.count, 10)
+        XCTAssertEqual(ProgressStore(defaults: storage).cleared.count, 5)
     }
 
     @MainActor private func aim(_ world: GameWorld, at target: ModelEntity) async throws {
@@ -334,6 +591,7 @@ final class GameTests: XCTestCase {
                                             length: 40, query: .nearest).first?.entity === target
         }
         let position = try XCTUnwrap(vantage, "Every enemy must be visible from an in-bounds position")
+        world.camera.position = position
         world.camera.look(at: targetPosition, from: position, relativeTo: nil)
         try await Task.sleep(for: .milliseconds(80))
     }

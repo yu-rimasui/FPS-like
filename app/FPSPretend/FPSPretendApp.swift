@@ -41,7 +41,7 @@ private struct RootView: View {
                 sheet = nil
                 if state.start(stageIndex: index) { runStage() }
             }
-            case .collection: CollectionView(progress: state.progress)
+            case .collection: CollectionView(progress: state.progress, isActive: scenePhase == .active)
             }
         }
         .onChange(of: sheet) { _, selected in

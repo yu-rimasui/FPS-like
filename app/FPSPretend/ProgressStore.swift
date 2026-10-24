@@ -11,6 +11,9 @@ final class ProgressStore {
     private(set) var currentStage: Int
 
     var unlockedStage: Int { min(Stage.all.count - 1, (cleared.max() ?? -1) + 1) }
+    var seenMotions: Set<EnemyMotion> {
+        Set(seen.flatMap { Stage.all[$0].motions.map(\.collectionMotion) })
+    }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults

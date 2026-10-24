@@ -81,7 +81,7 @@ struct ResultView: View {
                 Text("「\(state.ending)」").font(AppFonts.pixel(18)).multilineTextAlignment(.leading)
                     .padding(16).frame(maxWidth: .infinity, alignment: .leading)
                     .background(AppColors.sage).padding(.top, 16).accessibilityIdentifier("resultEnding")
-                Text(state.isFinalStage ? "全\(Stage.all.count)ステージの人形を消しました！" : "オチを図鑑に記録しました。")
+                Text(state.isFinalStage ? "全\(Stage.all.count)ステージの人形を消しました！" : "次のステージが解放されました。")
                     .font(AppFonts.pixel(12)).padding(.top, 8)
             }
             GamePanel(fill: Color(hex: 0xeef0e3)) {

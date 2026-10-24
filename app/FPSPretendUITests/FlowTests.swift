@@ -40,8 +40,15 @@ final class FlowTests: XCTestCase {
         XCTAssertTrue(collection.waitForExistence(timeout: 10))
         let savedCollection = collection.label
         // Encounters persist even when an enemy has not yet been fully resolved.
-        XCTAssertTrue(app.staticTexts["ひと休みの人形"].exists)
+        XCTAssertTrue(app.staticTexts["横になってる人形"].exists)
+        XCTAssertTrue(app.staticTexts["歩いてる人形"].exists)
+        XCTAssertFalse(savedCollection.contains("オチ"))
+        XCTAssertTrue(savedCollection.hasSuffix("/7"))
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "独自技術")).firstMatch.exists)
         capture("Collection", app: app)
+        app.swipeUp()
+        XCTAssertTrue(app.staticTexts["出会った人形の記録は、途中でやめても残ります。"].isHittable)
+        capture("CollectionBottom", app: app)
         app.terminate()
         app.launch()
         XCTAssertEqual(app.staticTexts["savedProgress"].label, savedProgress)
@@ -51,6 +58,9 @@ final class FlowTests: XCTestCase {
         app.buttons["closeLibraryButton"].tap()
         app.buttons["stageSelectButton"].tap()
         XCTAssertTrue(app.buttons["selectStage1"].waitForExistence(timeout: 10))
+        for (index, name) in ["壁", "風車", "ボール", "迷路", "隕石"].enumerated() {
+            XCTAssertTrue(app.buttons["selectStage\(index + 1)"].label.contains("\(index + 1). \(name)"))
+        }
         capture("StageSelection", app: app)
         app.terminate()
     }

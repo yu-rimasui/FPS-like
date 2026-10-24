@@ -44,21 +44,23 @@ struct CollectionView: View {
                     Button("閉じる") { dismiss() }.frame(minWidth: 60, minHeight: 44)
                         .accessibilityIdentifier("closeLibraryButton")
                 }
-                Text("出会い \(progress.seen.count)/\(Stage.all.count) ・ 発見したオチ \(progress.endings.count)/\(Stage.all.count * 3)")
+                Text("出会い \(progress.seenMotions.count)/\(EnemyMotion.collectionMotions.count)")
                     .font(AppFonts.pixel(13)).accessibilityIdentifier("collectionProgress")
-                ForEach(Stage.all.indices, id: \.self) { index in
+                Text("動きの違う人形は全7種類。出会うと、その人形のちょっと変わった事情が読めます。")
+                    .font(AppFonts.pixel(13)).foregroundStyle(AppColors.muted)
+                ForEach(EnemyMotion.collectionMotions.indices, id: \.self) { index in
+                    let motion = EnemyMotion.collectionMotions[index]
+                    let hasSeen = progress.seenMotions.contains(motion)
                     GamePanel {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text(progress.seen.contains(index) ? Stage.all[index].name : "\(index + 1). まだ出会っていません")
+                            Text(hasSeen ? motion.collectionDetails.name : "\(index + 1). まだ出会っていません")
                                 .font(AppFonts.pixel(16)).accessibilityAddTraits(.isHeader)
-                            ForEach(0..<3) { ending in
-                                Text(progress.endings.contains("\(index):\(ending)") ? "「\(Stage.all[index].kind.details.endings[ending])」" : "？？？")
-                                    .font(AppFonts.pixel(13)).foregroundStyle(AppColors.muted)
-                            }
+                            Text(hasSeen ? motion.collectionDetails.description : "？？？")
+                                .font(AppFonts.pixel(13)).foregroundStyle(AppColors.muted)
                         }
                     }.accessibilityIdentifier("collectionEnemy\(index + 1)")
                 }
-                Text("再プレイで別のオチが見つかります。中断しても発見は残ります。")
+                Text("出会った人形の記録は、途中でやめても残ります。")
                     .font(AppFonts.pixel(12)).foregroundStyle(AppColors.muted)
             }.padding(24)
         }.background(AppColors.paper).foregroundStyle(AppColors.ink)

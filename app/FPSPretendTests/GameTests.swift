@@ -32,6 +32,7 @@ final class GameTests: XCTestCase {
 
     @MainActor func testFiveStageSpecificationAndRoundedHitLimits() {
         XCTAssertEqual(Stage.all.count, 5)
+        XCTAssertEqual(Stage.all.map(\.name), ["壁", "風車", "ボール", "迷路", "隕石"])
         XCTAssertEqual(EnemyKind.allCases.count, 5)
         XCTAssertEqual(Stage.all.map(\.requiredTargets), [3, 4, 4, 4, 4])
         XCTAssertEqual(Stage.all.map(\.requiredHits), [15, 20, 20, 20, 20])
@@ -51,6 +52,27 @@ final class GameTests: XCTestCase {
                 XCTAssertEqual(stage.hitsRequired(for: target), expected)
             }
         }
+    }
+
+    @MainActor func testMotionCollectionReusesSavedStageEncounters() throws {
+        let storage = try defaults()
+        let progress = ProgressStore(defaults: storage)
+        XCTAssertTrue(progress.seenMotions.isEmpty)
+        _ = progress.beginVisit(0)
+        XCTAssertEqual(progress.seenMotions, [.sliding, .walking])
+        XCTAssertEqual(ProgressStore(defaults: storage).seenMotions, progress.seenMotions)
+        progress.markCleared(0)
+        _ = progress.beginVisit(1)
+        XCTAssertEqual(progress.seenMotions, [.sliding, .walking, .running])
+        for index in Stage.all.indices {
+            _ = progress.beginVisit(index)
+            progress.markCleared(index)
+        }
+        let restored = ProgressStore(defaults: storage)
+        XCTAssertEqual(EnemyMotion.collectionMotions.count, 7)
+        XCTAssertEqual(restored.seenMotions, Set(EnemyMotion.collectionMotions))
+        XCTAssertEqual(Set(EnemyMotion.collectionMotions.map { $0.collectionDetails.name }).count, 7)
+        XCTAssertTrue(EnemyMotion.collectionMotions.allSatisfy { !$0.collectionDetails.description.isEmpty })
     }
 
     @MainActor func testProgressAndCollectionSurviveInterruptionAndRetry() throws {

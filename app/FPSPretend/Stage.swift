@@ -18,8 +18,30 @@ enum EnemyKind: Int, CaseIterable {
     var material: HitMaterial { .cloth }
 }
 
-enum EnemyMotion: CaseIterable {
+enum EnemyMotion: CaseIterable, Hashable {
     case lying, sliding, walking, running, dancing, laughing, skipping, flying
+
+    static let collectionMotions: [Self] = [.sliding, .walking, .running, .dancing, .laughing, .skipping, .flying]
+    // The two lying motions differ only in speed, so they share one encyclopedia entry.
+    var collectionMotion: Self { self == .lying ? .sliding : self }
+    var collectionDetails: (name: String, description: String) {
+        switch self {
+        case .lying, .sliding:
+            return ("横になってる人形", "「静止してたらつまらない」と開発者に言われ、横になったまま滑る独自技術を習得した。起き上がるという提案は、まだ承認していない。")
+        case .walking:
+            return ("歩いてる人形", "開発者に「自由に歩いていいよ」と言われたので散歩中。行き先は決めていないが、ちゃんと用事がある顔をしている。")
+        case .running:
+            return ("走ってる人形", "歩く人形より急いでいるが、締め切りも待ち合わせもない。走る動作を実装された日から、止まる理由を探している。")
+        case .dancing:
+            return ("踊ってる人形", "音楽がなくても踊れるように作られた。本人にはずっと曲が聞こえているらしい。開発者も曲名は知らない。")
+        case .laughing:
+            return ("笑い転げる人形", "開発者の仮の冗談がツボに入り、そのまま正式採用された。笑いながら迷路を進むが、出口を知っているから笑っているわけではない。")
+        case .skipping:
+            return ("スキップする人形", "移動にも楽しさが必要だと主張して、スキップ機能を勝ち取った。毎回ちょっと浮くので、本人は飛行チームへの異動も希望している。")
+        case .flying:
+            return ("空を飛ぶ人形", "地面が混んでいたので、開発者に高さを変更してもらった。羽も免許もないが、設定上は問題ないと言い張っている。")
+        }
+    }
 
     var isLying: Bool { self == .lying || self == .sliding || self == .laughing }
     var speed: Float {
@@ -52,7 +74,15 @@ struct Stage {
     let timeLimit = 60
     let hitBudget = 15
 
-    var name: String { kind.details.name }
+    var name: String {
+        switch kind {
+        case .resting: return "壁"
+        case .walking: return "風車"
+        case .dancing: return "ボール"
+        case .laughing: return "迷路"
+        case .flying: return "隕石"
+        }
+    }
     var playerStart: SIMD3<Float> { kind == .laughing ? [1.7, 1.6, 3.8] : [0, 1.6, 3] }
     func hitsRequired(for targetID: Int) -> Int { ((hitBudget + targets.count * 5 - 1) / (targets.count * 5)) * 5 }
     var requiredHits: Int { hitsRequired(for: 0) * targets.count }

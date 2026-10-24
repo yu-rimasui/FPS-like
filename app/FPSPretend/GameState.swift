@@ -19,6 +19,7 @@ final class GameState {
     private(set) var targetHits: [Int] = []
     private(set) var variant = 0
     private(set) var message = ""
+    private(set) var ending = ""
     private var pendingShot = false
     private var deadline = 0.0
     private var lastHit: Double?
@@ -34,7 +35,6 @@ final class GameState {
     }
     var isCleared: Bool { !targetHits.isEmpty && resolvedCount == targetHits.count }
     var isFinalStage: Bool { stageIndex == Stage.all.count - 1 }
-    var ending: String { stage.kind.details.endings[variant] }
     var accuracy: Int { shotCount == 0 ? 0 : Int(Double(hitCount) / Double(shotCount) * 100) }
 
     init(progress: ProgressStore? = nil) { self.progress = progress ?? ProgressStore() }
@@ -86,7 +86,8 @@ final class GameState {
         hitTargets = []
         targetHits = Array(repeating: 0, count: stage.targets.count)
         variant = progress.beginVisit(stageIndex)
-        message = stage.kind.details.instruction
+        message = stage.kind.instruction
+        ending = ""
         resolutionUntil = 0
         pausedAt = nil
         deadline = now + Double(stage.timeLimit)
@@ -152,14 +153,14 @@ final class GameState {
         maxCombo = max(maxCombo, currentCombo)
         lastHit = now
         hitFeedback = true
+        var rng = SystemRandomNumberGenerator()
+        message = EnemyKind.hitComment(using: &rng)
         let required = stage.hitsRequired(for: targetID)
         if targetHits[targetID] == required {
-            message = stage.kind.completion(variant: variant)
             progress.discover(stage: stageIndex, ending: variant)
-        } else {
-            message = stage.kind.reaction(step: targetHits[targetID] * 4 / required)
         }
         if isCleared {
+            ending = message
             progress.markCleared(stageIndex)
             hitFeedback = false
             resolutionUntil = now + 2.2

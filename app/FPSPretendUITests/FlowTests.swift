@@ -153,7 +153,7 @@ final class FlowTests: XCTestCase {
         let after = seconds(app.staticTexts["timerLabel"].label)
         XCTAssertLessThanOrEqual(before - after, 1)
         XCTAssertTrue(app.buttons["replayButton"].waitForExistence(timeout: 95))
-        XCTAssertEqual(app.staticTexts["resultStatus"].label, "ひと休み")
+        XCTAssertEqual(app.staticTexts["resultStatus"].label, "タイムアップ")
         capture("Timeout", app: app)
         app.buttons["replayButton"].tap()
         XCTAssertTrue(app.buttons["fireButton"].waitForExistence(timeout: 10))

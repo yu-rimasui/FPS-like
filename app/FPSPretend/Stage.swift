@@ -3,18 +3,20 @@ import Foundation
 enum EnemyKind: Int, CaseIterable {
     case resting, walking, dancing, laughing, flying
 
-    var details: (name: String, instruction: String, endings: [String]) {
+    var instruction: String {
         switch self {
-        case .resting: return ("ひと休みの人形", "横倒しの2体と、歩く1体。壁を回って狙おう。", ["休憩、おしまい", "よく休めました", "そろそろ起きます"])
-        case .walking: return ("歩く・走る人形", "歩く2体と走る2体。風車の羽の隙間を狙おう。", ["お散歩、おしまい", "走りきりました", "ひと息つきましょう"])
-        case .dancing: return ("踊る人形", "踊る4体。転がるボールをよけて狙おう。", ["踊りきりました", "アンコールはまた今度", "いいリズムでした"])
-        case .laughing: return ("笑い転げる人形", "笑い転げる4体。迷路を回って探そう。", ["笑いすぎました", "ひとまず深呼吸", "楽しい時間でした"])
-        case .flying: return ("スキップ・空飛ぶ人形", "スキップ2体と空飛ぶ2体。隕石の向こうを狙おう。", ["着地しました", "空の散歩、おしまい", "また遊びましょう"])
+        case .resting: return "横倒しの2体と、歩く1体。壁を回って狙おう。"
+        case .walking: return "歩く2体と走る2体。風車の羽の隙間を狙おう。"
+        case .dancing: return "踊る4体。転がるボールをよけて狙おう。"
+        case .laughing: return "笑い転げる4体。迷路を回って探そう。"
+        case .flying: return "スキップ2体と空飛ぶ2体。隕石の向こうを狙おう。"
         }
     }
 
-    func completion(variant: Int) -> String { details.endings[variant] }
-    func reaction(step: Int) -> String { ["命中！", "いい調子", "あと少し", "もうひと息"][min(3, max(0, step))] }
+    static let hitComments = ["命中！", "ヒット！", "当たった！", "ナイスショット！", "お見事！"]
+    static func hitComment<R: RandomNumberGenerator>(using rng: inout R) -> String {
+        hitComments[Int.random(in: hitComments.indices, using: &rng)]
+    }
     var material: HitMaterial { .cloth }
 }
 

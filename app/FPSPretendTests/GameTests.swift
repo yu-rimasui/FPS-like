@@ -157,20 +157,31 @@ final class GameTests: XCTestCase {
         XCTAssertFalse(state.start(stageIndex: 5))
     }
 
-    @MainActor func testCompletionCommentsKeepAlternateEndings() throws {
+    @MainActor func testAllDollsUseRandomNeutralHitComments() throws {
+        let comments = Set(["命中！", "ヒット！", "当たった！", "ナイスショット！", "お見事！"])
+        var rng = SeededRandom(seed: 24)
+        let samples = (0..<100).map { _ in EnemyKind.hitComment(using: &rng) }
+        XCTAssertEqual(Set(samples), comments)
         let storage = try defaults()
         storage.set(Array(Stage.all.indices), forKey: "progress.cleared")
         let state = GameState(progress: ProgressStore(defaults: storage))
         for index in Stage.all.indices {
-            var endings: Set<String> = []
-            for _ in 0..<3 {
-                state.start(stageIndex: index, now: 0)
-                clear(state, now: 1)
-                XCTAssertEqual(state.message, state.ending)
-                XCTAssertTrue(state.isCleared)
-                endings.insert(state.ending)
+            state.start(stageIndex: index, now: 0)
+            XCTAssertEqual(state.ending, "")
+            for target in state.targetHits.indices {
+                for _ in 0..<state.stage.hitsRequired(for: target) {
+                    hit(state, target: target, now: 1)
+                    XCTAssertTrue(comments.contains(state.message), "Every hit, including disappearance, uses the shared comments")
+                }
             }
-            XCTAssertEqual(endings.count, 3)
+            XCTAssertTrue(state.isCleared)
+            XCTAssertEqual(state.message, state.ending)
+            let finalComment = state.ending
+            state.tick(now: 4)
+            XCTAssertEqual(state.phase, .result)
+            XCTAssertEqual(state.ending, finalComment)
+            XCTAssertFalse(state.registerHit(now: 5))
+            XCTAssertEqual(state.message, finalComment)
         }
     }
 

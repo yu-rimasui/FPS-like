@@ -70,7 +70,7 @@ struct ResultView: View {
                 Spacer()
                 PixelSpark().fill(Color(hex: 0x839471)).frame(width: 20, height: 20)
             }.padding(.top, 28)
-            Text(state.isCleared ? (state.isFinalStage ? "全\(Stage.all.count)ステージ\nクリア！" : "Stage\nClear!") : "ひと休み")
+            Text(state.isCleared ? (state.isFinalStage ? "全\(Stage.all.count)ステージ\nクリア！" : "Stage\nClear!") : "タイムアップ")
                 .font(AppFonts.pixel(34)).lineSpacing(3).padding(.top, 28)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("resultStatus")
@@ -168,7 +168,7 @@ struct GameView: View {
                             .accessibilityLabel("設定").accessibilityIdentifier("settingsButton")
                     }
                     Text(state.stage.goal).font(AppFonts.pixel(11)).accessibilityIdentifier("stageGoal")
-                    Text(state.stage.kind.details.instruction).font(AppFonts.pixel(11))
+                    Text(state.stage.kind.instruction).font(AppFonts.pixel(11))
                         .accessibilityIdentifier("stageInstruction")
                     Text(state.progressText).font(AppFonts.pixel(11)).accessibilityIdentifier("stageProgress")
                     ProgressView(value: state.progressFraction).tint(Color(hex: 0x758567))

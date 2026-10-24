@@ -247,6 +247,57 @@ final class GameTests: XCTestCase {
         XCTAssertNotEqual(signatures[2], signatures[3], "Walking and running must differ in limbs and movement")
     }
 
+    @MainActor func testCollectionPreviewsAnimateAndRelease() {
+        for motion in EnemyMotion.collectionMotions {
+            weak var released: DollMotionPreview.Coordinator?
+            do {
+                let preview = DollMotionPreview.Coordinator(motion: motion)
+                released = preview
+                XCTAssertEqual(preview.enemy.motion, motion)
+                XCTAssertTrue(EnemyVisual.colors.contains(preview.enemy.baseColor))
+                preview.update(time: 0)
+                let initial = transforms(preview.enemy.entity)
+                preview.update(time: 0.6)
+                XCTAssertNotEqual(transforms(preview.enemy.entity), initial)
+                if motion == .flying { XCTAssertGreaterThan(preview.enemy.entity.visualBounds(relativeTo: nil).min.y, 0.9) }
+            }
+            XCTAssertNil(released, "Closing or scrolling away must release the preview")
+        }
+    }
+
+    @MainActor func testFlyingPreviewRendersAboveTheFloor() async throws {
+        let previews = EnemyMotion.collectionMotions.map { DollMotionPreview.Coordinator(motion: $0) }
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let host = try XCTUnwrap(scene.windows.first)
+        for (index, preview) in previews.enumerated() {
+            preview.view.frame = CGRect(x: (index % 3) * 112, y: (index / 3) * 112, width: 112, height: 112)
+            host.addSubview(preview.view)
+            preview.update(time: 0.6)
+        }
+        defer {
+            for preview in previews {
+                preview.view.removeFromSuperview()
+            }
+        }
+        try await Task.sleep(for: .milliseconds(600))
+        let preview = try XCTUnwrap(previews.last)
+        let point = try XCTUnwrap(preview.view.project(preview.enemy.entity.position))
+        XCTAssertTrue(preview.view.bounds.contains(point))
+        let snapshot: UIImage? = await withCheckedContinuation { continuation in
+            preview.view.snapshot(saveToHDR: false) { continuation.resume(returning: $0) }
+        }
+        let attachment = XCTAttachment(image: try XCTUnwrap(snapshot))
+        attachment.name = "FlyingMotionPreview"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        preview.update(time: 1.1)
+        try await Task.sleep(for: .milliseconds(100))
+        let next: UIImage? = await withCheckedContinuation { continuation in
+            preview.view.snapshot(saveToHDR: false) { continuation.resume(returning: $0) }
+        }
+        XCTAssertNotEqual(try XCTUnwrap(snapshot).pngData(), try XCTUnwrap(next).pngData())
+    }
+
     @MainActor func testHitColorRestoresAndRepeatedHitExtendsOnlyThatDoll() {
         for color in EnemyVisual.colors {
             let enemy = EnemyVisual(motion: .lying, position: [0, 0.28, 0], color: color, requiredHits: 5)

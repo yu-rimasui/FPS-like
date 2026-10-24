@@ -26,6 +26,7 @@ final class FlowTests: XCTestCase {
 
     @MainActor func testEncounterCollectionAndProgressPersistAfterRelaunch() {
         let app = XCUIApplication()
+        app.terminate()
         app.launch()
         selectFirstStage(app)
         XCTAssertTrue(app.staticTexts["stageInstruction"].exists)
@@ -44,10 +45,20 @@ final class FlowTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["歩いてる人形"].exists)
         XCTAssertFalse(savedCollection.contains("オチ"))
         XCTAssertTrue(savedCollection.hasSuffix("/7"))
+        let preview = app.otherElements["横になってる人形の動き"]
+        XCTAssertTrue(preview.waitForExistence(timeout: 10))
+        XCTAssertEqual(preview.frame.width, preview.frame.height, accuracy: 0.5)
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "独自技術")).firstMatch.exists)
         capture("Collection", app: app)
-        app.swipeUp()
-        XCTAssertTrue(app.staticTexts["出会った人形の記録は、途中でやめても残ります。"].isHittable)
+        let footer = app.staticTexts["出会った人形の記録は、途中でやめても残ります。"]
+        for index in 0..<6 {
+            if footer.exists && footer.isHittable { break }
+            app.swipeUp()
+            capture("CollectionScroll\(index + 1)", app: app)
+        }
+        XCTAssertTrue(footer.isHittable)
+        let flying = app.otherElements["空を飛ぶ人形の動き"]
+        if flying.exists { XCTAssertEqual(flying.frame.width, flying.frame.height, accuracy: 0.5) }
         capture("CollectionBottom", app: app)
         app.terminate()
         app.launch()

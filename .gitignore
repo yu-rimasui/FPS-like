@@ -1,0 +1,10 @@
+# Xcode user settings and generated results
+xcuserdata/
+DerivedData/
+build/
+*.xcresult/
+
+# macOS and Python caches
+.DS_Store
+__pycache__/
+*.pyc

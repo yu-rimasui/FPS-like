@@ -1,6 +1,7 @@
 import XCTest
 import RealityKit
 import SwiftUI
+import SceneKit
 @testable import FPSPretend
 
 final class GameTests: XCTestCase {
@@ -255,6 +256,16 @@ final class GameTests: XCTestCase {
                 released = preview
                 XCTAssertEqual(preview.enemy.motion, motion)
                 XCTAssertTrue(EnemyVisual.colors.contains(preview.enemy.baseColor))
+                let boxes = preview.view.scene!.rootNode.childNode(withName: "doll", recursively: false)!.childNodes
+                let source = models(preview.enemy.entity)
+                XCTAssertEqual(boxes.count, source.count)
+                for (node, part) in zip(boxes, source) {
+                    let box = node.geometry as! SCNBox
+                    let size = part.model!.mesh.bounds.extents
+                    XCTAssertEqual(Float(box.width), size.x, accuracy: 0.0001)
+                    XCTAssertEqual(Float(box.height), size.y, accuracy: 0.0001)
+                    XCTAssertEqual(Float(box.length), size.z, accuracy: 0.0001)
+                }
                 preview.update(time: 0)
                 let initial = transforms(preview.enemy.entity)
                 preview.update(time: 0.6)
@@ -263,6 +274,54 @@ final class GameTests: XCTestCase {
             }
             XCTAssertNil(released, "Closing or scrolling away must release the preview")
         }
+    }
+
+    @MainActor func testVisibleCollectionPreviewsAnimateTogetherAcrossScrolling() async throws {
+        try XCTSkipIf(UIAccessibility.isReduceMotionEnabled, "Motion is disabled by the system accessibility setting")
+        let storage = try defaults()
+        storage.set(Array(Stage.all.indices), forKey: "progress.seen")
+        let progress = ProgressStore(defaults: storage)
+        let window = try XCTUnwrap((UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first)
+        let parent = try XCTUnwrap(window.rootViewController)
+        let controller = UIHostingController(rootView: CollectionView(progress: progress, isActive: true))
+        parent.addChild(controller)
+        controller.view.frame = parent.view.bounds
+        parent.view.addSubview(controller.view)
+        controller.didMove(toParent: parent)
+        defer {
+            controller.willMove(toParent: nil)
+            controller.view.removeFromSuperview()
+            controller.removeFromParent()
+        }
+        func descendants(_ view: UIView) -> [UIView] { [view] + view.subviews.flatMap(descendants) }
+        func checkVisible(playing: Bool) async throws {
+            let visible = descendants(controller.view).compactMap { $0 as? SCNView }.filter {
+                controller.view.bounds.contains($0.convert($0.bounds, to: controller.view)) && !$0.bounds.isEmpty
+            }
+            XCTAssertGreaterThanOrEqual(visible.count, 2)
+            XCTAssertTrue(visible.allSatisfy { $0.isPlaying == playing && $0.rendersContinuously == playing })
+            let dolls = try visible.map { try XCTUnwrap($0.scene?.rootNode.childNode(withName: "doll", recursively: false)) }
+            let before = dolls.map { $0.childNodes.map { Transform(matrix: $0.simdTransform) } }
+            try await Task.sleep(for: .milliseconds(350))
+            for (index, doll) in dolls.enumerated() {
+                let after = doll.childNodes.map { Transform(matrix: $0.simdTransform) }
+                if playing { XCTAssertNotEqual(after, before[index], "Every visible preview must move, including preview \(index + 1)") }
+                else { XCTAssertEqual(after, before[index], "Paused previews must stay still") }
+            }
+        }
+        try await Task.sleep(for: .milliseconds(600))
+        XCTAssertEqual(descendants(controller.view).filter { $0 is SCNView }.count, 7)
+        try await checkVisible(playing: true)
+        let scroll = try XCTUnwrap(descendants(controller.view).compactMap { $0 as? UIScrollView }.first)
+        scroll.setContentOffset(CGPoint(x: 0, y: max(0, scroll.contentSize.height - scroll.bounds.height + scroll.adjustedContentInset.bottom)), animated: false)
+        try await Task.sleep(for: .milliseconds(350))
+        try await checkVisible(playing: true)
+        controller.rootView = CollectionView(progress: progress, isActive: false)
+        try await Task.sleep(for: .milliseconds(150))
+        try await checkVisible(playing: false)
+        controller.rootView = CollectionView(progress: progress, isActive: true)
+        try await Task.sleep(for: .milliseconds(150))
+        try await checkVisible(playing: true)
     }
 
     @MainActor func testFlyingPreviewRendersAboveTheFloor() async throws {
@@ -281,21 +340,17 @@ final class GameTests: XCTestCase {
         }
         try await Task.sleep(for: .milliseconds(600))
         let preview = try XCTUnwrap(previews.last)
-        let point = try XCTUnwrap(preview.view.project(preview.enemy.entity.position))
-        XCTAssertTrue(preview.view.bounds.contains(point))
-        let snapshot: UIImage? = await withCheckedContinuation { continuation in
-            preview.view.snapshot(saveToHDR: false) { continuation.resume(returning: $0) }
-        }
-        let attachment = XCTAttachment(image: try XCTUnwrap(snapshot))
+        let point = preview.view.projectPoint(SCNVector3(preview.enemy.entity.position))
+        XCTAssertTrue(preview.view.bounds.contains(CGPoint(x: CGFloat(point.x), y: CGFloat(point.y))))
+        let snapshot = preview.view.snapshot()
+        let attachment = XCTAttachment(image: snapshot)
         attachment.name = "FlyingMotionPreview"
         attachment.lifetime = .keepAlways
         add(attachment)
         preview.update(time: 1.1)
         try await Task.sleep(for: .milliseconds(100))
-        let next: UIImage? = await withCheckedContinuation { continuation in
-            preview.view.snapshot(saveToHDR: false) { continuation.resume(returning: $0) }
-        }
-        XCTAssertNotEqual(try XCTUnwrap(snapshot).pngData(), try XCTUnwrap(next).pngData())
+        let next = preview.view.snapshot()
+        XCTAssertNotEqual(snapshot.pngData(), next.pngData())
     }
 
     @MainActor func testHitColorRestoresAndRepeatedHitExtendsOnlyThatDoll() {

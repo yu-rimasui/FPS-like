@@ -1,5 +1,6 @@
 import SwiftUI
 import RealityKit
+import SceneKit
 
 struct StageSelectView: View {
     let progress: ProgressStore
@@ -87,51 +88,83 @@ struct DollMotionPreview: View {
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !isPlaying)) { timeline in
-            SceneView(motion: motion, time: Float(timeline.date.timeIntervalSince(startedAt)))
+            SceneView(motion: motion, time: Float(timeline.date.timeIntervalSince(startedAt)), isPlaying: isPlaying)
         }
     }
 
     private struct SceneView: UIViewRepresentable {
         let motion: EnemyMotion
         let time: Float
+        let isPlaying: Bool
         func makeCoordinator() -> DollMotionPreview.Coordinator { Coordinator(motion: motion) }
-        func makeUIView(context: Context) -> ARView { context.coordinator.view }
-        func updateUIView(_ view: ARView, context: Context) {
+        func makeUIView(context: Context) -> SCNView { context.coordinator.view }
+        func updateUIView(_ view: SCNView, context: Context) {
             context.coordinator.update(time: time)
+            view.isPlaying = isPlaying
+            view.rendersContinuously = isPlaying
+        }
+        static func dismantleUIView(_ view: SCNView, coordinator: DollMotionPreview.Coordinator) {
+            view.isPlaying = false
+            view.rendersContinuously = false
         }
     }
 
     @MainActor final class Coordinator {
-        let view = ARView(frame: .zero, cameraMode: .nonAR, automaticallyConfigureSession: false)
+        let view = SCNView(frame: .zero)
         let enemy: EnemyVisual
+        private var parts: [(ModelEntity, SCNNode)] = []
 
         init(motion: EnemyMotion) {
             enemy = EnemyVisual(motion: motion, position: [0, motion.height, 0],
                                 color: EnemyVisual.colors.randomElement()!, requiredHits: 5)
-            view.environment.background = .color(UIColor(AppColors.paper))
+            view.backgroundColor = UIColor(AppColors.paper)
             view.clipsToBounds = true
-            view.renderOptions = [.disableMotionBlur, .disableDepthOfField]
-            let root = AnchorEntity(world: .zero)
-            view.scene.addAnchor(root)
-            root.addChild(enemy.entity)
-            let floor = ModelEntity(mesh: .generateBox(size: [5, 0.05, 5]),
-                                    materials: [SimpleMaterial(color: UIColor(AppColors.sage), roughness: 1, isMetallic: false)])
+            view.scene = SCNScene()
+            view.autoenablesDefaultLighting = true
+            view.rendersContinuously = true
+            view.isPlaying = true
+            view.preferredFramesPerSecond = 30
+            let root = view.scene!.rootNode
+            let doll = SCNNode()
+            doll.name = "doll"
+            root.addChildNode(doll)
+            func addParts(_ entity: Entity) {
+                if let part = entity as? ModelEntity, let model = part.model {
+                    let size = model.mesh.bounds.extents
+                    let box = SCNBox(width: CGFloat(size.x), height: CGFloat(size.y), length: CGFloat(size.z), chamferRadius: 0)
+                    let material = SCNMaterial()
+                    material.lightingModel = .lambert
+                    if let source = model.materials.first as? SimpleMaterial { material.diffuse.contents = source.color.tint }
+                    if let source = model.materials.first as? UnlitMaterial {
+                        material.diffuse.contents = source.color.tint
+                        material.lightingModel = .constant
+                    }
+                    box.firstMaterial = material
+                    let node = SCNNode(geometry: box)
+                    doll.addChildNode(node)
+                    parts.append((part, node))
+                }
+                for child in entity.children { addParts(child) }
+            }
+            addParts(enemy.entity)
+            let floor = SCNNode(geometry: SCNBox(width: 5, height: 0.05, length: 5, chamferRadius: 0))
+            floor.geometry!.firstMaterial!.diffuse.contents = UIColor(AppColors.sage)
             floor.position.y = -0.025
-            root.addChild(floor)
-            let camera = PerspectiveCamera()
-            camera.camera.fieldOfViewInDegrees = 45
-            camera.look(at: [0, motion == .flying ? 1.4 : 0.65, 0],
-                        from: motion == .flying ? [2.7, 3.2, 4.2] : [2.1, 2.3, 3.3], relativeTo: nil)
-            root.addChild(camera)
-            let light = DirectionalLight()
-            light.light.intensity = 2200
-            light.look(at: .zero, from: [3, 8, 5], relativeTo: nil)
-            root.addChild(light)
+            root.addChildNode(floor)
+            let camera = SCNNode()
+            camera.camera = SCNCamera()
+            camera.camera!.fieldOfView = 45
+            camera.simdPosition = motion == .flying ? [2.7, 3.2, 4.2] : [2.1, 2.3, 3.3]
+            camera.look(at: SCNVector3(0, motion == .flying ? 1.4 : 0.65, 0))
+            root.addChildNode(camera)
+            view.pointOfView = camera
+            update(time: 0)
         }
 
         func update(time: Float) {
             enemy.update(time: time, reducedMotion: false)
             enemy.entity.position.x = sin(time * enemy.motion.speed) * 0.4
+            for (part, node) in parts { node.simdTransform = part.transformMatrix(relativeTo: nil) }
         }
     }
 }

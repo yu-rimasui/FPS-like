@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 
 final class FlowTests: XCTestCase {
     @MainActor func testShotsAtMovingDollsConsumeAmmoAndKeepSavedProgress() {
@@ -24,7 +25,7 @@ final class FlowTests: XCTestCase {
         app.terminate()
     }
 
-    @MainActor func testEncounterCollectionAndProgressPersistAfterRelaunch() {
+    @MainActor func testEncounterCollectionAndProgressPersistAfterRelaunch() throws {
         let app = XCUIApplication()
         app.terminate()
         app.launch()
@@ -50,6 +51,15 @@ final class FlowTests: XCTestCase {
         XCTAssertEqual(preview.frame.width, preview.frame.height, accuracy: 0.5)
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "独自技術")).firstMatch.exists)
         capture("Collection", app: app)
+        for name in ["横になってる人形", "歩いてる人形", "走ってる人形", "踊ってる人形", "笑い転げる人形", "スキップする人形", "空を飛ぶ人形"] {
+            let motion = app.otherElements["\(name)の動き"]
+            guard motion.exists else { continue }
+            for _ in 0..<6 {
+                if app.frame.insetBy(dx: 0, dy: 100).contains(motion.frame) { break }
+                app.swipeUp()
+            }
+            try assertPreviewMoves(motion, app: app)
+        }
         let footer = app.staticTexts["出会った人形の記録は、途中でやめても残ります。"]
         for index in 0..<6 {
             if footer.exists && footer.isHittable { break }
@@ -181,6 +191,29 @@ final class FlowTests: XCTestCase {
         app.buttons["selectStage1"].tap()
         XCTAssertTrue(app.buttons["fireButton"].waitForExistence(timeout: 15))
         XCTAssertTrue(app.staticTexts["stageLabel"].label.contains("1/5"))
+    }
+
+    @MainActor private func assertPreviewMoves(_ preview: XCUIElement, app: XCUIApplication) throws {
+        XCTAssertEqual(preview.frame.width, preview.frame.height, accuracy: 0.5)
+        XCTAssertTrue(app.frame.contains(preview.frame))
+        func image() throws -> UIImage {
+            let screen = try XCTUnwrap(app.screenshot().image.cgImage)
+            let scale = CGFloat(screen.width) / app.frame.width
+            let frame = preview.frame.offsetBy(dx: -app.frame.minX, dy: -app.frame.minY)
+            let rect = CGRect(x: frame.minX * scale, y: frame.minY * scale,
+                              width: frame.width * scale, height: frame.height * scale)
+            return UIImage(cgImage: try XCTUnwrap(screen.cropping(to: rect)))
+        }
+        let before = try image()
+        Thread.sleep(forTimeInterval: 0.4)
+        let after = try image()
+        for (suffix, image) in [("Before", before), ("After", after)] {
+            let attachment = XCTAttachment(image: image)
+            attachment.name = "\(preview.label)\(suffix)"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+        XCTAssertNotEqual(before.pngData(), after.pngData(), "\(preview.label) must animate on screen")
     }
 
     @MainActor private func capture(_ name: String, app: XCUIApplication) {
